@@ -37,5 +37,6 @@ class DefaultController {
       extract($data);
       include 'App/Views/Home.php';
    }
+
 }
 ?>

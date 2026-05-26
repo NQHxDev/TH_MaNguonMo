@@ -1,6 +1,7 @@
 <?php
 
 class VNPayConfig {
+
     public static array $config = [
         'vnp_TmnCode' => 'WOWDZI10',
         'vnp_HashSecret' => 'B6ITLF13EJYLSM6V9FZS204EN0Y3GHVF',
@@ -8,5 +9,6 @@ class VNPayConfig {
         'vnp_ReturnUrl' => 'http://localhost:8080/cart/vnpayReturn',
         'exchange_rate' => 25400
     ];
+    
 }
 ?>

@@ -251,7 +251,7 @@
                                 <tbody>
                                     <?php 
                                     $cartTotal = 0;
-                                    foreach ($cart as $id => $item): 
+                                    foreach ($cart as $id => $item):
                                         $subtotal = $item['price'] * $item['quantity'];
                                         $cartTotal += $subtotal;
                                     ?>

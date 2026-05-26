@@ -126,7 +126,7 @@ class CartController {
          $payment_method = $_POST['payment_method'] ?? 'cod';
 
          if (empty($name) || empty($phone) || empty($address)) {
-            $_SESSION['error'] = "Vui lòng nhập đầy đủ thông tin giao hàng.";
+            $_SESSION['error'] = "Vui lòng nhập đầy đủ thông tin giao hàng!";
             header("Location: /cart/checkout");
             exit();
          }

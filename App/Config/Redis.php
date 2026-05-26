@@ -1,9 +1,13 @@
 <?php
 
 class RedisClient {
+
     private $socket = null;
+    
     private string $host;
+    
     private int $port;
+    
     private float $timeout;
 
     public function __construct(string $host = '127.0.0.1', int $port = 6379, float $timeout = 2.0) {
@@ -107,5 +111,6 @@ class RedisClient {
             $this->socket = null;
         }
     }
+
 }
 ?>
