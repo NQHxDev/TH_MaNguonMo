@@ -152,7 +152,8 @@ class CartController {
                'phone' => $phone,
                'address' => $address,
                'amount_usd' => $total_usd,
-               'amount_vnd' => $total_vnd
+               'amount_vnd' => $total_vnd,
+               'cart_items' => $cart
             ];
 
             $vnp_TmnCode = VNPayConfig::$config['vnp_TmnCode'];
@@ -246,6 +247,51 @@ class CartController {
          $pending = $_SESSION['pending_order'] ?? [];
          unset($_SESSION['pending_order']);
 
+         try {
+            $this->db->beginTransaction();
+
+            $stmtOrder = $this->db->prepare(
+               "INSERT INTO orders (vnpay_txn_ref, customer_name, customer_phone, customer_address, total_usd, total_vnd, bank_code, payment_status) VALUES (:txn_ref, :name, :phone, :address, :total_usd, :total_vnd, :bank_code, 'paid')"
+            );
+            $txnRef = $_GET['vnp_TxnRef'] ?? '';
+            $bankCode = $_GET['vnp_BankCode'] ?? '';
+            $totalUsd = $pending['amount_usd'] ?? 0;
+            $totalVnd = $pending['amount_vnd'] ?? 0;
+            $custName = $pending['name'] ?? '';
+            $custPhone = $pending['phone'] ?? '';
+            $custAddress = $pending['address'] ?? '';
+            $stmtOrder->bindParam(':txn_ref', $txnRef);
+            $stmtOrder->bindParam(':name', $custName);
+            $stmtOrder->bindParam(':phone', $custPhone);
+            $stmtOrder->bindParam(':address', $custAddress);
+            $stmtOrder->bindParam(':total_usd', $totalUsd);
+            $stmtOrder->bindParam(':total_vnd', $totalVnd);
+            $stmtOrder->bindParam(':bank_code', $bankCode);
+            $stmtOrder->execute();
+
+            $orderId = (int)$this->db->lastInsertId();
+
+            $cartItems = $pending['cart_items'] ?? [];
+            $stmtDetail = $this->db->prepare(
+               "INSERT INTO order_details (order_id, product_id, product_name, quantity, price) VALUES (:order_id, :product_id, :product_name, :quantity, :price)"
+            );
+            foreach ($cartItems as $productId => $item) {
+               $prodName = $item['name'] ?? '';
+               $qty = $item['quantity'];
+               $price = $item['price'];
+               $stmtDetail->bindParam(':order_id', $orderId);
+               $stmtDetail->bindParam(':product_id', $productId);
+               $stmtDetail->bindParam(':product_name', $prodName);
+               $stmtDetail->bindParam(':quantity', $qty);
+               $stmtDetail->bindParam(':price', $price);
+               $stmtDetail->execute();
+            }
+
+            $this->db->commit();
+         } catch (Exception $e) {
+            $this->db->rollBack();
+         }
+
          $orderData = [
             'success' => true,
             'txnRef' => $_GET['vnp_TxnRef'] ?? '',
@@ -254,7 +300,9 @@ class CartController {
             'payDate' => $_GET['vnp_PayDate'] ?? '',
             'recipient' => $pending
          ];
+
          include 'App/Views/Cart/VNPayResult.php';
+         
          exit();
       } else {
          $orderData = [
