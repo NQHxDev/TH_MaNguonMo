@@ -1,5 +1,7 @@
 <?php
 
+require_once 'App/Config/Database.php';
+require_once 'App/Models/CategoryModel.php';
 require_once 'App/Models/ProductModel.php';
 
 $url = $_GET['url'] ?? '';
