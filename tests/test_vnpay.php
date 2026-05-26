@@ -1,5 +1,5 @@
 <?php
-require_once 'App/Config/VNPay.php';
+require_once __DIR__ . '/../App/Config/VNPay.php';
 
 try {
     echo "Đang kiểm tra cấu hình VNPAY...\n";

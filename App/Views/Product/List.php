@@ -6,53 +6,68 @@
     <title>Quản Lý Sản Phẩm - Danh Mục</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { 
-            background-color: #f6f8fb; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: #2D3748;
+            background-color: #080c14; 
+            font-family: 'Outfit', sans-serif; 
+            color: #f8fafc;
+            background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
         }
         .navbar { 
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: rgba(8, 12, 20, 0.85); 
+            backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .btn-add { 
-            background: linear-gradient(135deg, #4f46e5, #7c3aed); 
+            background: linear-gradient(135deg, #38bdf8 0%, #4f46e5 100%); 
             border: none; 
             color: white; 
             font-weight: 600;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
         }
         .btn-add:hover { 
-            background: linear-gradient(135deg, #3730a3, #6d28d9); 
+            background: linear-gradient(135deg, #0ea5e9 0%, #4338ca 100%); 
             color: white; 
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.45);
         }
         .product-card {
-            border: none;
-            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 28px;
             overflow: hidden;
-            background-color: #ffffff;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+            background-color: rgba(17, 24, 39, 0.55);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
         .product-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.08) !important;
+            box-shadow: 0 20px 40px rgba(56, 189, 248, 0.15) !important;
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+        .card-img-wrapper {
+            padding: 16px 16px 0 16px;
         }
         .card-img-container {
             position: relative;
-            height: 220px;
-            background-color: #f8fafc;
+            height: 210px;
+            background-color: rgba(15, 23, 42, 0.3);
             overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .product-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: all 0.5s ease;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .product-card:hover .product-img {
+            transform: scale(1.06);
         }
         .placeholder-img {
             display: flex;
@@ -63,31 +78,40 @@
             font-size: 2.2rem;
             color: #ffffff;
             font-weight: 700;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
         }
         .category-badge {
             position: absolute;
-            top: 16px;
-            left: 16px;
-            font-size: 0.75rem;
+            top: 14px;
+            left: 14px;
+            font-size: 0.6rem;
             font-weight: 600;
-            padding: 6px 14px;
+            padding: 4px 10px;
             border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             z-index: 3;
             display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
         }
-        .badge-cat-1 { background-color: #e0f2fe; color: #0369a1; }
-        .badge-cat-2 { background-color: #f3e8ff; color: #6b21a8; }
-        .badge-cat-3 { background-color: #dcfce7; color: #15803d; }
-        .badge-cat-4 { background-color: #fef3c7; color: #b45309; }
-        .badge-cat-5 { background-color: #ffe4e6; color: #be123c; }
-        .badge-cat-default { background-color: #f1f5f9; color: #475569; }
+        .badge-cat-1 { background-color: rgba(56, 189, 248, 0.06); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.15); }
+        .badge-cat-2 { background-color: rgba(167, 139, 250, 0.06); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.15); }
+        .badge-cat-3 { background-color: rgba(52, 211, 153, 0.06); color: #6ee7b7; border: 1px solid rgba(52, 211, 153, 0.15); }
+        .badge-cat-4 { background-color: rgba(251, 191, 36, 0.06); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.15); }
+        .badge-cat-5 { background-color: rgba(244, 63, 94, 0.06); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.15); }
+        .badge-cat-default { background-color: rgba(148, 163, 184, 0.06); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.15); }
 
         .price-tag {
-            color: #4f46e5;
+            color: #38bdf8;
             font-weight: 700;
-            font-size: 1.35rem;
+            font-size: 1.45rem;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+        .price-vnd-sub {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: block;
+            margin-top: 2px;
         }
         .btn-action-card {
             width: 38px;
@@ -103,26 +127,89 @@
             transform: scale(1.05);
         }
         .thumb-bubble {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            border: 2px solid #e2e8f0;
+            border: 2px solid rgba(255, 255, 255, 0.1);
             background-size: cover;
             background-position: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            opacity: 0.6;
+            opacity: 0.5;
         }
         .thumb-bubble:hover, .thumb-bubble.active {
             opacity: 1;
-            border-color: #4f46e5;
+            border-color: #38bdf8;
             transform: scale(1.1);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 380px !important;
+            max-width: calc(100vw - 48px) !important;
+            z-index: 9999;
+        }
+        .custom-toast {
+            width: 100% !important;
+            background: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+            padding: 16px !important;
+            margin-bottom: 12px !important;
+            transition: all 0.3s ease !important;
+        }
+        .custom-toast.toast-success {
+            border-left: 4px solid #10b981 !important;
+        }
+        .custom-toast.toast-error {
+            border-left: 4px solid #ef4444 !important;
+        }
+        .toast-icon-success {
+            color: #10b981 !important;
+        }
+        .toast-icon-error {
+            color: #ef4444 !important;
+        }
+        .toast-text {
+            color: #f8fafc !important;
+            font-weight: 500 !important;
+            font-size: 0.9rem !important;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark mb-5 py-3 shadow-sm">
+<div class="toast-container">
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="toast show custom-toast toast-success" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill toast-icon-success fs-5"></i>
+                    <span class="toast-text"><?= $_SESSION['success']; unset($_SESSION['success']); ?></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="toast show custom-toast toast-error" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill toast-icon-error fs-5"></i>
+                    <span class="toast-text"><?= $_SESSION['error']; unset($_SESSION['error']); ?></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-5 py-3 shadow-sm sticky-top">
     <div class="container">
         <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="/">
             <i class="bi bi-box-seam-fill me-2 text-warning"></i>ZeionStore
@@ -136,43 +223,21 @@
 <div class="container mb-5">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <h2 class="fw-bold text-dark mb-1">Danh Mục Quản Lý</h2>
-            <p class="text-muted small mb-0">Xem và quản lý các sản phẩm trong giao diện danh sách thẻ chuyên nghiệp.</p>
+            <h2 class="fw-bold text-white mb-1">Danh Mục Quản Lý</h2>
+            <p class="text-secondary small mb-0">Xem và quản lý các sản phẩm trong giao diện danh sách thẻ chuyên nghiệp.</p>
         </div>
         <a href="/product/create" class="btn btn-add px-4 py-2.5 rounded-pill shadow-sm">
             <i class="bi bi-plus-lg me-2"></i>Thêm sản phẩm mới
         </a>
     </div>
 
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4 p-3" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-check-circle-fill fs-5 me-2 text-success"></i>
-                <div>
-                    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
-                </div>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
 
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4 p-3" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-exclamation-triangle-fill fs-5 me-2 text-danger"></i>
-                <div>
-                    <?= $_SESSION['error']; unset($_SESSION['error']); ?>
-                </div>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    <?php endif; ?>
 
     <?php if (empty($products)): ?>
-        <div class="card p-5 text-center text-muted rounded-4">
+        <div class="card p-5 text-center text-muted rounded-4 bg-dark bg-opacity-25 border border-secondary border-opacity-10">
             <i class="bi bi-inbox fs-1 d-block mb-3 text-secondary"></i>
-            <h4>Không tìm thấy sản phẩm nào</h4>
-            <p class="mb-4">Bắt đầu bằng việc thêm sản phẩm đầu tiên của bạn vào danh mục.</p>
+            <h4 class="text-white">Không tìm thấy sản phẩm nào</h4>
+            <p class="text-secondary mb-4">Bắt đầu bằng việc thêm sản phẩm đầu tiên của bạn vào danh mục.</p>
             <a href="/product/create" class="btn btn-add px-4 py-2 rounded-pill d-inline-block">
                 <i class="bi bi-plus-lg me-2"></i>Thêm sản phẩm mới
             </a>
@@ -182,26 +247,28 @@
             <?php foreach ($products as $product): ?>
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="product-card card h-100" id="prod-card-<?= $product->getID() ?>">
-                        <div class="card-img-container">
-                            <?php 
-                            $catId = $product->getCategoryID();
-                            $badgeClass = ($catId >= 1 && $catId <= 5) ? 'badge-cat-' . $catId : 'badge-cat-default';
-                            ?>
-                            <span class="category-badge <?= $badgeClass ?>">
-                                <i class="bi bi-tag-fill me-1"></i>
-                                <?= htmlspecialchars($product->getCategoryName() ?? 'Chưa phân loại') ?>
-                            </span>
+                        <div class="card-img-wrapper">
+                            <div class="card-img-container">
+                                <?php 
+                                $catId = $product->getCategoryID();
+                                $badgeClass = ($catId >= 1 && $catId <= 5) ? 'badge-cat-' . $catId : 'badge-cat-default';
+                                ?>
+                                <span class="category-badge <?= $badgeClass ?>">
+                                    <i class="bi bi-tag-fill me-1"></i>
+                                    <?= htmlspecialchars($product->getCategoryName() ?? 'Chưa phân loại') ?>
+                                </span>
 
-                            <?php if ($product->getImage()): ?>
-                                <img src="<?= htmlspecialchars($product->getImage()) ?>" class="product-img" id="main-img-<?= $product->getID() ?>" alt="<?= htmlspecialchars($product->getName()) ?>" onerror="this.onerror=null; this.src=''; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <?php endif; ?>
-                            <div class="placeholder-img" id="placeholder-<?= $product->getID() ?>" style="display: <?= $product->getImage() ? 'none' : 'flex' ?>;">
-                                <?= strtoupper(substr($product->getName() ?? 'P', 0, 2)) ?>
+                                <?php if ($product->getImage()): ?>
+                                    <img src="<?= htmlspecialchars($product->getImage()) ?>" class="product-img" id="main-img-<?= $product->getID() ?>" alt="<?= htmlspecialchars($product->getName()) ?>" onerror="this.onerror=null; this.src=''; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <?php endif; ?>
+                                <div class="placeholder-img" id="placeholder-<?= $product->getID() ?>" style="display: <?= $product->getImage() ? 'none' : 'flex' ?>;">
+                                    <?= strtoupper(substr($product->getName() ?? 'P', 0, 2)) ?>
+                                </div>
                             </div>
                         </div>
 
                         <div class="card-body p-4 d-flex flex-column">
-                            <h5 class="fw-bold text-dark mb-1 text-truncate" title="<?= htmlspecialchars($product->getName()) ?>">
+                            <h5 class="fw-bold text-white mb-2 text-truncate" title="<?= htmlspecialchars($product->getName()) ?>">
                                 <?= htmlspecialchars($product->getName()) ?>
                             </h5>
                             
@@ -229,17 +296,16 @@
                                 <div style="height: 12px;"></div>
                             <?php endif; ?>
 
-                            <p class="text-secondary small flex-grow-1 mb-4" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; height: 4.5em; line-height: 1.5em;">
-                                <?= htmlspecialchars($product->getDescription() ?? 'Không có mô tả sản phẩm.') ?>
-                            </p>
-
-                            <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-light">
-                                <span class="price-tag">$<?= number_format($product->getPrice(), 2) ?></span>
+                            <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-secondary border-opacity-20">
+                                <div>
+                                    <span class="price-tag">$<?= number_format($product->getPrice(), 2) ?></span>
+                                    <span class="price-vnd-sub"><?= number_format($product->getPrice() * 25400) ?> đ</span>
+                                </div>
                                 <div class="d-flex gap-2">
-                                    <a href="/product/edit/<?= $product->getID() ?>" class="btn btn-outline-primary btn-action-card" title="Chỉnh sửa">
+                                    <a href="/product/edit/<?= $product->getID() ?>" class="btn btn-outline-primary btn-action-card border-secondary text-white" title="Chỉnh sửa">
                                         <i class="bi bi-pencil-fill"></i>
                                     </a>
-                                    <a href="/product/delete/<?= $product->getID() ?>" class="btn btn-outline-danger btn-action-card" 
+                                    <a href="/product/delete/<?= $product->getID() ?>" class="btn btn-outline-danger btn-action-card border-danger text-danger" 
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')" title="Xóa">
                                         <i class="bi bi-trash-fill"></i>
                                     </a>
@@ -273,6 +339,16 @@ function swapImage(prodId, imgSrc, btn) {
     }
     btn.classList.add('active');
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toasts = document.querySelectorAll('.toast');
+    toasts.forEach(toastEl => {
+        setTimeout(() => {
+            const bsToast = bootstrap.Toast.getOrCreateInstance(toastEl);
+            if (bsToast) bsToast.hide();
+        }, 4000);
+    });
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -1,5 +1,5 @@
 <?php
-require_once 'App/Config/Redis.php';
+require_once __DIR__ . '/../App/Config/Redis.php';
 
 try {
     echo "Đang thử kết nối máy chủ Redis (Memurai) cục bộ...\n";

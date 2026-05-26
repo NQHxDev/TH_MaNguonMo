@@ -202,12 +202,11 @@ class CartController {
 
             header("Location: " . $vnp_Url);
             exit();
-         } else {
-            $this->clearCart();
-            $_SESSION['success'] = "Cảm ơn bạn, " . htmlspecialchars($name) . "! Đơn hàng thanh toán khi nhận hàng (COD) đã được đặt thành công.";
-            header("Location: /");
-            exit();
-         }
+          } else {
+             $_SESSION['error'] = "Phương thức thanh toán không hợp lệ hoặc COD đã bị khóa!";
+             header("Location: /cart/checkout");
+             exit();
+          }
       }
       header("Location: /");
       exit();

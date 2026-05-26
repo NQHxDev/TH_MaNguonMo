@@ -6,22 +6,28 @@
     <title>Kết Quả Thanh Toán - ZeionStore</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { 
-            background-color: #f6f8fb; 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            color: #2D3748;
+            background-color: #080c14; 
+            font-family: 'Outfit', sans-serif; 
+            color: #f8fafc;
+            background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
         }
         .navbar { 
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: rgba(8, 12, 20, 0.85); 
+            backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
         .card { 
-            border: none; 
+            border: 1px solid rgba(255, 255, 255, 0.06); 
             border-radius: 24px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
-            background-color: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            background-color: rgba(17, 24, 39, 0.55);
+            backdrop-filter: blur(10px);
+            color: #f8fafc;
         }
         .status-icon {
             width: 72px;
@@ -34,16 +40,18 @@
             margin-bottom: 20px;
         }
         .status-success {
-            background-color: #d1fae5;
+            background-color: rgba(16, 185, 129, 0.15);
             color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
         .status-danger {
-            background-color: #fee2e2;
+            background-color: rgba(239, 68, 68, 0.15);
             color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
         .btn-action {
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 12px 28px;
             transition: all 0.2s ease;
         }
@@ -51,20 +59,24 @@
             display: flex;
             justify-content: space-between;
             padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .detail-row:last-child {
             border-bottom: none;
         }
         .detail-label {
-            color: #718096;
+            color: #94a3b8;
             font-size: 0.9rem;
         }
         .detail-val {
             font-weight: 600;
-            color: #1a202c;
+            color: #f8fafc;
             font-size: 0.9rem;
             text-align: right;
+        }
+        .bg-light-dark {
+            background-color: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
     </style>
 </head>
@@ -86,11 +98,11 @@
                     <div class="status-icon status-success">
                         <i class="bi bi-check-circle-fill"></i>
                     </div>
-                    <h3 class="fw-bold text-dark mb-2">Thanh Toán Thành Công</h3>
+                    <h3 class="fw-bold text-white mb-2">Thanh Toán Thành Công</h3>
                     <p class="text-secondary small mb-4">Giao dịch qua VNPAY của bạn đã được xác thực và xử lý thành công.</p>
                     
-                    <div class="text-start mb-4 bg-light p-4 rounded-4">
-                        <h5 class="fw-bold text-dark mb-3">Chi tiết giao dịch</h5>
+                    <div class="text-start mb-4 bg-light-dark p-4 rounded-4">
+                        <h5 class="fw-bold text-white mb-3">Chi tiết giao dịch</h5>
                         <div class="detail-row">
                             <span class="detail-label">Mã đơn hàng VNPAY</span>
                             <span class="detail-val"><?= htmlspecialchars($orderData['txnRef']) ?></span>
@@ -101,7 +113,7 @@
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Giá trị USD tương đương</span>
-                            <span class="detail-val text-dark fw-bold">$<?= number_format($orderData['recipient']['amount_usd'] ?? 0, 2) ?></span>
+                            <span class="detail-val text-primary fw-bold">$<?= number_format($orderData['recipient']['amount_usd'] ?? 0, 2) ?></span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Ngân hàng giao dịch</span>
@@ -114,8 +126,8 @@
                     </div>
 
                     <?php if (!empty($orderData['recipient'])): ?>
-                        <div class="text-start mb-4 bg-light p-4 rounded-4">
-                            <h5 class="fw-bold text-dark mb-3">Thông tin nhận hàng</h5>
+                        <div class="text-start mb-4 bg-light-dark p-4 rounded-4">
+                            <h5 class="fw-bold text-white mb-3">Thông tin nhận hàng</h5>
                             <div class="detail-row">
                                 <span class="detail-label">Tên người nhận</span>
                                 <span class="detail-val"><?= htmlspecialchars($orderData['recipient']['name']) ?></span>
@@ -131,18 +143,18 @@
                         </div>
                     <?php endif; ?>
 
-                    <a href="/" class="btn btn-success btn-action w-100 py-3 rounded-pill shadow-sm">
+                    <a href="/" class="btn btn-success btn-action w-100 py-3 rounded-pill shadow-sm" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
                         <i class="bi bi-house-door me-2"></i>Quay lại Trang chủ
                     </a>
                 <?php else: ?>
                     <div class="status-icon status-danger">
                         <i class="bi bi-x-circle-fill"></i>
                     </div>
-                    <h3 class="fw-bold text-dark mb-2">Thanh Toán Thất Bại</h3>
+                    <h3 class="fw-bold text-white mb-2">Thanh Toán Thất Bại</h3>
                     <p class="text-secondary small mb-4">Giao dịch đã bị hủy bỏ hoặc xảy ra lỗi trong quá trình xử lý.</p>
 
-                    <div class="text-start mb-4 bg-light p-4 rounded-4">
-                        <h5 class="fw-bold text-dark mb-3">Chi tiết lỗi</h5>
+                    <div class="text-start mb-4 bg-light-dark p-4 rounded-4">
+                        <h5 class="fw-bold text-white mb-3">Chi tiết lỗi</h5>
                         <div class="detail-row">
                             <span class="detail-label">Mã giao dịch VNPAY</span>
                             <span class="detail-val"><?= htmlspecialchars($orderData['txnRef']) ?></span>
@@ -158,10 +170,10 @@
                     </div>
 
                     <div class="d-flex gap-3">
-                        <a href="/cart" class="btn btn-outline-secondary btn-action w-50 py-3 rounded-pill">
+                        <a href="/cart" class="btn btn-outline-secondary btn-action w-50 py-3 rounded-pill text-white border-secondary">
                             Về giỏ hàng
                         </a>
-                        <a href="/cart/checkout" class="btn btn-danger btn-action w-50 py-3 rounded-pill shadow-sm">
+                        <a href="/cart/checkout" class="btn btn-danger btn-action w-50 py-3 rounded-pill shadow-sm border-0" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
                             Thực hiện lại
                         </a>
                     </div>

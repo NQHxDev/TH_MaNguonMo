@@ -1,5 +1,5 @@
 <?php
-require_once 'App/Config/Database.php';
+require_once __DIR__ . '/../App/Config/Database.php';
 
 try {
     echo "Đang thử kết nối cơ sở dữ liệu...\n";
@@ -30,9 +30,10 @@ try {
     }
 
     echo "Đang kiểm tra thư mục 'uploads/'...\n";
-    if (is_dir('uploads')) {
+    $uploadsDir = __DIR__ . '/../uploads';
+    if (is_dir($uploadsDir)) {
         echo "THÀNH CÔNG: Thư mục 'uploads/' tồn tại.\n";
-        $files = array_diff(scandir('uploads'), array('.', '..'));
+        $files = array_diff(scandir($uploadsDir), array('.', '..'));
         echo "THÔNG TIN: Số lượng tệp đã tải lên: " . count($files) . "\n";
     } else {
         echo "THÔNG TIN: Thư mục 'uploads/' chưa tồn tại (sẽ tự động được tạo khi tải lên ảnh đầu tiên).\n";

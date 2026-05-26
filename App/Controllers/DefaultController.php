@@ -24,9 +24,7 @@ class DefaultController {
          $cartJson = $redis->get('cart:' . session_id());
          $cart = $cartJson ? json_decode($cartJson, true) : [];
          if (is_array($cart)) {
-            foreach ($cart as $item) {
-               $cartCount += $item['quantity'];
-            }
+            $cartCount = count($cart);
          }
       } catch (Exception $e) {
          error_log($e->getMessage());
