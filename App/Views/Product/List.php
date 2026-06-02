@@ -214,9 +214,30 @@
         <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="/">
             <i class="bi bi-box-seam-fill me-2 text-warning"></i>ZeionStore
         </a>
-        <a href="/" class="nav-link text-white fw-semibold hover-opacity">
-            <i class="bi bi-shop me-1"></i>Quay lại cửa hàng
-        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="nav-link text-white fw-semibold hover-opacity">
+                <i class="bi bi-shop me-1"></i>Quay lại cửa hàng
+            </a>
+            <?php if (SessionHelper::isLoggedIn()): ?>
+                <span class="text-secondary small d-none d-md-inline-block">
+                    Xin chào, <strong class="text-white"><?= htmlspecialchars(SessionHelper::getUsername()) ?></strong> 
+                    <span class="badge bg-secondary ms-1 text-uppercase" style="font-size: 0.65rem;"><?= htmlspecialchars(SessionHelper::getRole()) ?></span>
+                </span>
+                <a href="/cart/orders" class="nav-link text-white fw-semibold me-2 d-inline-block hover-opacity">
+                    <i class="bi bi-receipt me-1"></i>Đơn hàng
+                </a>
+                <a href="/account/logout" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+                </a>
+            <?php else: ?>
+                <a href="/account/login" class="nav-link text-white fw-semibold hover-opacity">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                </a>
+                <a href="/account/register" class="btn btn-outline-info btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-person-plus me-1"></i>Đăng ký
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 </nav>
 
@@ -298,7 +319,7 @@
 
                             <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-secondary border-opacity-20">
                                 <div>
-                                    <span class="price-tag">$<?= number_format($product->getPrice(), 2) ?></span>
+                                    <span class="price-tag">$<?= number_format($product->getPrice()) ?></span>
                                     <span class="price-vnd-sub"><?= number_format($product->getPrice() * 25400) ?> đ</span>
                                 </div>
                                 <div class="d-flex gap-2">

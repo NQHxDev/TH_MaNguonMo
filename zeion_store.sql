@@ -24,6 +24,18 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `account`
+--
+
+CREATE TABLE `account` ( 
+  `id` INT AUTO_INCREMENT PRIMARY KEY, 
+  `username` VARCHAR(255) NOT NULL UNIQUE, 
+  `fullname` VARCHAR(255) NOT NULL, 
+  `password` VARCHAR(255) NOT NULL, 
+  `role` ENUM('admin', 'user') DEFAULT 'user' 
+);
+
+--
 -- Table structure for table `category`
 --
 
@@ -60,6 +72,7 @@ CREATE TABLE `orders` (
   `total_vnd` bigint NOT NULL,
   `bank_code` varchar(50) DEFAULT NULL,
   `payment_status` varchar(20) NOT NULL DEFAULT 'paid',
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -110,6 +123,13 @@ CREATE TABLE `product_image` (
 --
 
 --
+-- Indexes for table `account`
+--
+ALTER TABLE `account`
+  ADD KEY `idx_fullname` (`fullname`),
+  ADD KEY `idx_role` (`role`);
+
+--
 -- Indexes for table `category`
 --
 ALTER TABLE `category`
@@ -120,7 +140,8 @@ ALTER TABLE `category`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `vnpay_txn_ref` (`vnpay_txn_ref`);
+  ADD UNIQUE KEY `vnpay_txn_ref` (`vnpay_txn_ref`),
+  ADD KEY `idx_username` (`username`);
 
 --
 -- Indexes for table `order_details`
@@ -186,6 +207,12 @@ ALTER TABLE `product_image`
 --
 ALTER TABLE `order_details`
   ADD CONSTRAINT `order_details_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `fk_orders_account` FOREIGN KEY (`username`) REFERENCES `account` (`username`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `product`

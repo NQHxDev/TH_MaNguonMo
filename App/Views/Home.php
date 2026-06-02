@@ -337,9 +337,31 @@ $cartCount = $cartCount ?? 0;
             <i class="bi bi-box-seam-fill me-2 text-warning"></i>ZeionStore
         </a>
         <div class="d-flex align-items-center gap-3">
-            <a href="/product/list" class="nav-link text-white fw-semibold me-2 d-none d-sm-inline-block hover-opacity">
-                <i class="bi bi-gear-fill me-1"></i>Trang quản trị
-            </a>
+            <?php if (SessionHelper::isLoggedIn()): ?>
+                <span class="text-secondary small d-none d-md-inline-block">
+                    Xin chào, <strong class="text-white"><?= htmlspecialchars(SessionHelper::getUsername()) ?></strong> 
+                    <span class="badge bg-secondary ms-1 text-uppercase" style="font-size: 0.65rem;"><?= htmlspecialchars(SessionHelper::getRole()) ?></span>
+                </span>
+                <a href="/cart/orders" class="nav-link text-white fw-semibold me-2 d-none d-sm-inline-block hover-opacity">
+                    <i class="bi bi-receipt me-1"></i>Đơn hàng
+                </a>
+                <?php if (SessionHelper::isAdmin()): ?>
+                    <a href="/product/list" class="nav-link text-white fw-semibold me-2 d-none d-sm-inline-block hover-opacity">
+                        <i class="bi bi-gear-fill me-1"></i>Trang quản trị
+                    </a>
+                <?php endif; ?>
+                <a href="/account/logout" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    Đăng xuất
+                </a>
+            <?php else: ?>
+                <a href="/account/login" class="nav-link text-white fw-semibold hover-opacity">
+                    Đăng nhập
+                </a>
+                <a href="/account/register" class="btn btn-outline-info btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-person-plus me-1"></i>Đăng ký
+                </a>
+            <?php endif; ?>
+            
             <a href="/cart" class="cart-link" title="Xem giỏ hàng">
                 <i class="bi bi-cart3 fs-5"></i>
                 <?php if ($cartCount > 0): ?>
@@ -389,7 +411,7 @@ $cartCount = $cartCount ?? 0;
 
                             <div class="d-flex align-items-center justify-content-between mb-4 mt-auto">
                                 <div>
-                                    <span class="price-tag">$<?= number_format($product->getPrice(), 2) ?></span>
+                                    <span class="price-tag">$<?= number_format($product->getPrice()) ?></span>
                                     <span class="price-vnd-sub"><?= number_format($product->getPrice() * 25400) ?> đ</span>
                                 </div>
                             </div>
@@ -489,7 +511,7 @@ function openDetail(productId) {
     else if (catId === 5) catBadge.className += ' bg-danger text-danger bg-opacity-10 border border-danger border-opacity-30';
     else catBadge.className += ' bg-secondary text-secondary bg-opacity-10 border border-secondary border-opacity-30';
     
-    document.getElementById('modal-price').textContent = '$' + parseFloat(p.price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('modal-price').textContent = '$' + parseFloat(p.price).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
     document.getElementById('modal-price-vnd').textContent = '(' + Math.round(p.priceVnd).toLocaleString('vi-VN') + ' VND)';
     
     const mainImg = document.getElementById('modal-main-img');

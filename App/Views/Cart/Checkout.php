@@ -183,9 +183,32 @@
         <a class="navbar-brand fw-bold fs-3 d-flex align-items-center" href="/">
             <i class="bi bi-box-seam-fill me-2 text-warning"></i>ZeionStore
         </a>
-        <a href="/product/list" class="nav-link text-white fw-semibold hover-opacity">
-            <i class="bi bi-gear-fill me-1"></i>Trang quản trị
-        </a>
+        <div class="d-flex align-items-center gap-3">
+            <?php if (SessionHelper::isLoggedIn()): ?>
+                <span class="text-secondary small d-none d-md-inline-block">
+                    Xin chào, <strong class="text-white"><?= htmlspecialchars(SessionHelper::getUsername()) ?></strong> 
+                    <span class="badge bg-secondary ms-1 text-uppercase" style="font-size: 0.65rem;"><?= htmlspecialchars(SessionHelper::getRole()) ?></span>
+                </span>
+                <a href="/cart/orders" class="nav-link text-white fw-semibold me-2 d-inline-block hover-opacity">
+                    <i class="bi bi-receipt me-1"></i>Đơn hàng
+                </a>
+                <?php if (SessionHelper::isAdmin()): ?>
+                    <a href="/product/list" class="nav-link text-white fw-semibold hover-opacity">
+                        <i class="bi bi-gear-fill me-1"></i>Trang quản trị
+                    </a>
+                <?php endif; ?>
+                <a href="/account/logout" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+                </a>
+            <?php else: ?>
+                <a href="/account/login" class="nav-link text-white fw-semibold hover-opacity">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                </a>
+                <a href="/account/register" class="btn btn-outline-info btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-person-plus me-1"></i>Đăng ký
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 </nav>
 
@@ -271,9 +294,9 @@
                         <div class="item-row">
                             <div style="max-width: 250px;">
                                 <span class="fw-semibold text-white text-truncate d-block small"><?= htmlspecialchars($item['name']) ?></span>
-                                <span class="text-secondary small">SL: <?= $item['quantity'] ?> x $<?= number_format($item['price'], 2) ?></span>
+                                <span class="text-secondary small">SL: <?= $item['quantity'] ?> x $<?= number_format($item['price']) ?></span>
                             </div>
-                            <span class="fw-bold text-white text-end small">$<?= number_format($subtotal, 2) ?></span>
+                            <span class="fw-bold text-white text-end small">$<?= number_format($subtotal) ?></span>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -281,7 +304,7 @@
                 <hr class="my-3 border-secondary border-opacity-35">
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-secondary">Tạm tính (USD)</span>
-                    <span class="fw-semibold text-white">$<?= number_format($orderTotal, 2) ?></span>
+                    <span class="fw-semibold text-white">$<?= number_format($orderTotal) ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-secondary">Quy đổi sang VND</span>
@@ -294,7 +317,7 @@
                 <hr class="my-3 border-secondary border-opacity-35">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="text-uppercase fw-bold text-secondary small">Tổng thanh toán</span>
-                    <span class="fw-bold text-primary fs-3">$<?= number_format($orderTotal, 2) ?></span>
+                    <span class="fw-bold text-primary fs-3">$<?= number_format($orderTotal) ?></span>
                 </div>
             </div>
         </div>

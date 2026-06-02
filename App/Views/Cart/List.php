@@ -206,9 +206,32 @@
         <a class="navbar-brand fw-bold fs-3 d-flex align-items-center" href="/">
             <i class="bi bi-box-seam-fill me-2 text-warning"></i>ZeionStore
         </a>
-        <a href="/product/list" class="nav-link text-white fw-semibold hover-opacity">
-            <i class="bi bi-gear-fill me-1"></i>Trang quản trị
-        </a>
+        <div class="d-flex align-items-center gap-3">
+            <?php if (SessionHelper::isLoggedIn()): ?>
+                <span class="text-secondary small d-none d-md-inline-block">
+                    Xin chào, <strong class="text-white"><?= htmlspecialchars(SessionHelper::getUsername()) ?></strong> 
+                    <span class="badge bg-secondary ms-1 text-uppercase" style="font-size: 0.65rem;"><?= htmlspecialchars(SessionHelper::getRole()) ?></span>
+                </span>
+                <a href="/cart/orders" class="nav-link text-white fw-semibold me-2 d-inline-block hover-opacity">
+                    <i class="bi bi-receipt me-1"></i>Đơn hàng
+                </a>
+                <?php if (SessionHelper::isAdmin()): ?>
+                    <a href="/product/list" class="nav-link text-white fw-semibold hover-opacity">
+                        <i class="bi bi-gear-fill me-1"></i>Trang quản trị
+                    </a>
+                <?php endif; ?>
+                <a href="/account/logout" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+                </a>
+            <?php else: ?>
+                <a href="/account/login" class="nav-link text-white fw-semibold hover-opacity">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                </a>
+                <a href="/account/register" class="btn btn-outline-info btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-person-plus me-1"></i>Đăng ký
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 </nav>
 
@@ -269,11 +292,11 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-end fw-semibold text-secondary">$<?= number_format($item['price'], 2) ?></td>
+                                            <td class="text-end fw-semibold text-secondary">$<?= number_format($item['price']) ?></td>
                                             <td class="text-center">
                                                 <input type="number" name="quantities[<?= $id ?>]" value="<?= $item['quantity'] ?>" min="1" max="99" class="qty-input">
                                             </td>
-                                            <td class="text-end fw-bold text-white">$<?= number_format($subtotal, 2) ?></td>
+                                            <td class="text-end fw-bold text-white">$<?= number_format($subtotal) ?></td>
                                             <td class="text-center">
                                                 <a href="/cart/remove/<?= $id ?>" class="text-danger fs-5 hover-scale d-inline-block" title="Xóa sản phẩm">
                                                     <i class="bi bi-trash"></i>
@@ -298,7 +321,7 @@
                     <h5 class="fw-bold mb-4 text-white">Tóm tắt đơn hàng</h5>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-secondary">Tạm tính</span>
-                        <span class="fw-semibold text-secondary">$<?= number_format($cartTotal, 2) ?></span>
+                        <span class="fw-semibold text-secondary">$<?= number_format($cartTotal) ?></span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-secondary">Phí vận chuyển</span>
@@ -307,7 +330,7 @@
                     <hr class="my-3 border-secondary border-opacity-35">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="summary-title">Tổng tiền</span>
-                        <span class="summary-val">$<?= number_format($cartTotal, 2) ?></span>
+                        <span class="summary-val">$<?= number_format($cartTotal) ?></span>
                     </div>
                     <a href="/cart/checkout" class="btn btn-checkout w-100 py-3 d-flex align-items-center justify-content-center gap-2" style="text-decoration: none;">
                         <i class="bi bi-credit-card"></i> Tiến hành thanh toán
