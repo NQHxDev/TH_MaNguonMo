@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 26, 2026 at 02:55 AM
+-- Generation Time: May 26, 2026 at 04:31 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -18,10 +18,22 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `zeion_store`
+-- Database: `production`
 --
 
 -- --------------------------------------------------------
+
+--
+-- Table structure for table `account`
+--
+
+CREATE TABLE `account` ( 
+  `id` INT AUTO_INCREMENT PRIMARY KEY, 
+  `username` VARCHAR(255) NOT NULL UNIQUE, 
+  `fullname` VARCHAR(255) NOT NULL, 
+  `password` VARCHAR(255) NOT NULL, 
+  `role` ENUM('admin', 'user') DEFAULT 'user' 
+);
 
 --
 -- Table structure for table `category`
@@ -43,6 +55,41 @@ INSERT INTO `category` (`id`, `name`, `description`) VALUES
 (3, 'Máy tính bảng', 'Danh mục các loại máy tính bảng'),
 (4, 'Phụ kiện', 'Danh mục phụ kiện điện tử'),
 (5, 'Thiết bị âm thanh', 'Danh mục loa, tai nghe, micro');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `orders`
+--
+
+CREATE TABLE `orders` (
+  `id` int NOT NULL,
+  `vnpay_txn_ref` varchar(100) NOT NULL,
+  `customer_name` varchar(255) NOT NULL,
+  `customer_phone` varchar(50) NOT NULL,
+  `customer_address` text NOT NULL,
+  `total_usd` decimal(12,2) NOT NULL,
+  `total_vnd` bigint NOT NULL,
+  `bank_code` varchar(50) DEFAULT NULL,
+  `payment_status` varchar(20) NOT NULL DEFAULT 'paid',
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_details`
+--
+
+CREATE TABLE `order_details` (
+  `id` int NOT NULL,
+  `order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `product_name` varchar(100) NOT NULL,
+  `quantity` int NOT NULL,
+  `price` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -76,10 +123,32 @@ CREATE TABLE `product_image` (
 --
 
 --
+-- Indexes for table `account`
+--
+ALTER TABLE `account`
+  ADD KEY `idx_fullname` (`fullname`),
+  ADD KEY `idx_role` (`role`);
+
+--
 -- Indexes for table `category`
 --
 ALTER TABLE `category`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `orders`
+--
+ALTER TABLE `orders`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `vnpay_txn_ref` (`vnpay_txn_ref`),
+  ADD KEY `idx_username` (`username`);
+
+--
+-- Indexes for table `order_details`
+--
+ALTER TABLE `order_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`);
 
 --
 -- Indexes for table `product`
@@ -106,6 +175,18 @@ ALTER TABLE `category`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `orders`
+--
+ALTER TABLE `orders`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `order_details`
+--
+ALTER TABLE `order_details`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
@@ -120,6 +201,18 @@ ALTER TABLE `product_image`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `order_details`
+--
+ALTER TABLE `order_details`
+  ADD CONSTRAINT `order_details_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `orders`
+--
+ALTER TABLE `orders`
+  ADD CONSTRAINT `fk_orders_account` FOREIGN KEY (`username`) REFERENCES `account` (`username`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `product`

@@ -6,7 +6,7 @@ class Database {
     public static function getConnection(): PDO {
         if (self::$connection === null) {
             $host = 'localhost';
-            $dbname = 'production';
+            $dbname = 'zeion_store';
             $username = 'root';
             $password = '';
             

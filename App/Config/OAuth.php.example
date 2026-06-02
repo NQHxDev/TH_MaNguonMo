@@ -1,0 +1,17 @@
+<?php
+
+class OAuthConfig {
+    
+    public static array $google = [
+        'client_id'     => 'YOUR_GOOGLE_CLIENT_ID',
+        'client_secret' => 'YOUR_GOOGLE_CLIENT_SECRET',
+        'redirect_uri'  => 'http://localhost/account/googleCallback'
+    ];
+
+    public static array $github = [
+        'client_id'     => 'YOUR_GITHUB_CLIENT_ID',
+        'client_secret' => 'YOUR_GITHUB_CLIENT_SECRET',
+        'redirect_uri'  => 'http://localhost/account/githubCallback'
+    ];
+}
+?>

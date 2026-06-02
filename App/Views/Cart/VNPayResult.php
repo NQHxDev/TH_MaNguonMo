@@ -87,6 +87,32 @@
         <a class="navbar-brand fw-bold fs-3 d-flex align-items-center" href="/">
             <i class="bi bi-box-seam-fill me-2 text-warning"></i>ZeionStore
         </a>
+        <div class="d-flex align-items-center gap-3">
+            <?php if (SessionHelper::isLoggedIn()): ?>
+                <span class="text-secondary small d-none d-md-inline-block">
+                    Xin chào, <strong class="text-white"><?= htmlspecialchars(SessionHelper::getUsername()) ?></strong> 
+                    <span class="badge bg-secondary ms-1 text-uppercase" style="font-size: 0.65rem;"><?= htmlspecialchars(SessionHelper::getRole()) ?></span>
+                </span>
+                <a href="/cart/orders" class="nav-link text-white fw-semibold me-2 d-inline-block hover-opacity">
+                    <i class="bi bi-receipt me-1"></i>Đơn hàng
+                </a>
+                <?php if (SessionHelper::isAdmin()): ?>
+                    <a href="/product/list" class="nav-link text-white fw-semibold hover-opacity">
+                        <i class="bi bi-gear-fill me-1"></i>Trang quản trị
+                    </a>
+                <?php endif; ?>
+                <a href="/account/logout" class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+                </a>
+            <?php else: ?>
+                <a href="/account/login" class="nav-link text-white fw-semibold hover-opacity">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                </a>
+                <a href="/account/register" class="btn btn-outline-info btn-sm px-3 rounded-pill fw-semibold text-decoration-none">
+                    <i class="bi bi-person-plus me-1"></i>Đăng ký
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 </nav>
 
@@ -113,7 +139,7 @@
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Giá trị USD tương đương</span>
-                            <span class="detail-val text-primary fw-bold">$<?= number_format($orderData['recipient']['amount_usd'] ?? 0, 2) ?></span>
+                            <span class="detail-val text-primary fw-bold">$<?= number_format($orderData['recipient']['amount_usd'] ?? 0) ?></span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Ngân hàng giao dịch</span>

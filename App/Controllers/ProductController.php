@@ -12,6 +12,11 @@ class ProductController {
       if (session_status() === PHP_SESSION_NONE) {
          session_start();
       }
+      if (!SessionHelper::isAdmin()) {
+         $_SESSION['error'] = "Bạn không có quyền truy cập!";
+         header("Location: /");
+         exit();
+      }
       $this->db = Database::getConnection();
    }
 

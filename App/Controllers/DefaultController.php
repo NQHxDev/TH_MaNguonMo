@@ -21,7 +21,9 @@ class DefaultController {
       $cartCount = 0;
       try {
          $redis = new RedisClient();
-         $cartJson = $redis->get('cart:' . session_id());
+         $username = SessionHelper::getUsername();
+         $cartKey = $username ? 'cart:user:' . $username : 'cart:guest:' . session_id();
+         $cartJson = $redis->get($cartKey);
          $cart = $cartJson ? json_decode($cartJson, true) : [];
          if (is_array($cart)) {
             $cartCount = count($cart);
