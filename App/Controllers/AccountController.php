@@ -26,20 +26,19 @@ class AccountController {
         include_once 'App/Views/Account/Login.php'; 
     } 
  
-    public function save() { 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') { 
-            $username = $_POST['username'] ?? ''; 
-            $fullName = $_POST['fullname'] ?? ''; 
-            $password = $_POST['password'] ?? ''; 
-            $confirmPassword = $_POST['confirmpassword'] ?? ''; 
-            $role = $_POST['role'] ?? 'user'; 
+    public function save() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = $_POST['username'] ?? '';
+            $fullName = $_POST['fullname'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $confirmPassword = $_POST['confirmpassword'] ?? '';
  
-            $errors = []; 
+            $errors = [];
             if (empty($username)) $errors['username'] = "Vui lòng nhập username!"; 
             if (empty($fullName)) $errors['fullname'] = "Vui lòng nhập fullname!"; 
             if (empty($password)) $errors['password'] = "Vui lòng nhập password!"; 
             if ($password !== $confirmPassword) $errors['confirmPass'] = "Mật khẩu và xác nhận chưa khớp!"; 
-            if (!in_array($role, ['admin', 'user'])) $role = 'user'; 
+            $role =  'user';
             
             if ($this->accountModel->getAccountByUsername($username)) { 
                 $errors['account'] = "Tài khoản này đã được đăng ký!"; 
@@ -170,8 +169,8 @@ class AccountController {
     
         $account = $this->accountModel->getAccountByUsername($email);
         if (!$account) {
-            $randomPass = bin2hex(random_bytes(16));
-            $this->accountModel->save($email, $name, $randomPass, 'user');
+            // $randomPass = bin2hex(random_bytes(16));
+            $this->accountModel->save($email, $name, '', 'user');
             $account = $this->accountModel->getAccountByUsername($email);
         }
         
@@ -253,8 +252,8 @@ class AccountController {
         
         $account = $this->accountModel->getAccountByUsername($username);
         if (!$account) {
-            $randomPass = bin2hex(random_bytes(16));
-            $this->accountModel->save($username, $name, $randomPass, 'user');
+            // $randomPass = bin2hex(random_bytes(16));
+            $this->accountModel->save($username, $name, '', 'user');
             $account = $this->accountModel->getAccountByUsername($username);
         }
         

@@ -21,10 +21,10 @@ class AccountModel {
     public function save(string $username, string $fullName, string $password, string $role = 'user'): bool { 
         if ($this->getAccountByUsername($username)) { 
             return false; 
-        } 
+        }
  
         $query = "INSERT INTO " . $this->table_name . " (username, fullname, password, role) VALUES (:username, :fullname, :password, :role)";
-        $stmt = $this->conn->prepare($query); 
+        $stmt = $this->conn->prepare($query);
  
         $username = htmlspecialchars(strip_tags($username)); 
         $fullName = htmlspecialchars(strip_tags($fullName)); 
