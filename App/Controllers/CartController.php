@@ -3,47 +3,75 @@
 require_once 'App/Config/Database.php';
 require_once 'App/Config/Redis.php';
 require_once 'App/Config/VNPay.php';
+require_once 'App/Config/AppConfig.php';
 require_once 'App/Models/ProductModel.php';
+require_once 'App/Utils/AuthMiddleware.php';
+require_once 'App/Utils/TokenHelper.php';
 
 class CartController {
 
    private PDO $db;
-
    private RedisClient $redis;
-
    private string $cartKey;
+   private ?string $username = null;
 
    public function __construct() {
-      if (session_status() === PHP_SESSION_NONE) {
-         session_start();
-      }
       $this->db = Database::getConnection();
       $this->redis = new RedisClient();
-      $username = SessionHelper::getUsername();
-      $this->cartKey = $username ? 'cart:user:' . $username : 'cart:guest:' . session_id();
+      
+      // Xác định thông tin giỏ hàng qua Token hoặc X-Guest-Id (Client gửi lên)
+      $user = AuthMiddleware::getUserFromHeaders();
+      if ($user) {
+         $this->username = $user['username'];
+         $this->cartKey = 'cart:user:' . $this->username;
+      } else {
+         $guestId = null;
+         if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            foreach ($headers as $key => $value) {
+               if (strcasecmp($key, 'X-Guest-Id') === 0) {
+                  $guestId = $value;
+                  break;
+               }
+            }
+         }
+         if (!$guestId && isset($_GET['guest_id'])) {
+            $guestId = $_GET['guest_id'];
+         }
+         if (!$guestId && isset($_POST['guest_id'])) {
+            $guestId = $_POST['guest_id'];
+         }
+         // Fallback về địa chỉ IP của Client
+         if (!$guestId) {
+            $guestId = md5($_SERVER['REMOTE_ADDR']);
+         }
+         $this->cartKey = 'cart:guest:' . $guestId;
+      }
    }
 
+   /**
+    * GET /api/cart
+    */
    public function index() {
-      if (!SessionHelper::isLoggedIn()) {
-         header("Location: /account/login");
-         exit();
-      }
       $cart = $this->getCart();
-      include 'App/Views/Cart/List.php';
+      echo json_encode([
+         'success' => true,
+         'cart'    => $cart
+      ], JSON_UNESCAPED_UNICODE);
+      exit();
    }
 
+   /**
+    * POST /api/cart/add
+    */
    public function add(int $id) {
-      if (!SessionHelper::isLoggedIn()) {
-         $_SESSION['error'] = "Bạn cần đăng nhập!";
-         $referer = $_SERVER['HTTP_REFERER'] ?? '/';
-         header("Location: " . $referer);
-         exit();
-      }
-
       $product = ProductModel::getById($this->db, $id);
       if (!$product) {
-         $_SESSION['error'] = "Không tìm thấy sản phẩm!";
-         header("Location: /");
+         http_response_code(404);
+         echo json_encode([
+            'success' => false,
+            'message' => "Không tìm thấy sản phẩm!"
+         ], JSON_UNESCAPED_UNICODE);
          exit();
       }
 
@@ -53,6 +81,7 @@ class CartController {
          $cart[$id]['quantity']++;
       } else {
          $cart[$id] = [
+            'id'       => $product->getID(),
             'name'     => $product->getName(),
             'price'    => $product->getPrice(),
             'image'    => $product->getImage(),
@@ -62,201 +91,257 @@ class CartController {
 
       $this->saveCart($cart);
 
-      $_SESSION['success'] = "Đã thêm \"" . htmlspecialchars($product->getName()) . "\" vào giỏ hàng thành công!";
-      
-      $referer = $_SERVER['HTTP_REFERER'] ?? '/';
-      header("Location: " . $referer);
+      echo json_encode([
+         'success' => true,
+         'message' => "Đã thêm \"" . $product->getName() . "\" vào giỏ hàng thành công!"
+      ], JSON_UNESCAPED_UNICODE);
       exit();
    }
 
-   public function buyNow(int $id) {
-      if (!SessionHelper::isLoggedIn()) {
-         $_SESSION['error'] = "Bạn cần đăng nhập để mua sản phẩm!";
-         $referer = $_SERVER['HTTP_REFERER'] ?? '/';
-         header("Location: " . $referer);
-         exit();
-      }
-
-      $product = ProductModel::getById($this->db, $id);
-      if (!$product) {
-         $_SESSION['error'] = "Không tìm thấy sản phẩm!";
-         header("Location: /");
-         exit();
-      }
-
-      $cart = $this->getCart();
-
-      if (!isset($cart[$id])) {
-         $cart[$id] = [
-            'name'     => $product->getName(),
-            'price'    => $product->getPrice(),
-            'image'    => $product->getImage(),
-            'quantity' => 1
-         ];
-         $this->saveCart($cart);
-      }
-
-      header("Location: /cart/checkout");
-      exit();
-   }
-
+   /**
+    * POST /api/cart/remove
+    */
    public function remove(int $id) {
-      if (!SessionHelper::isLoggedIn()) {
-         $_SESSION['error'] = "Bạn cần đăng nhập!";
-         header("Location: /account/login");
-         exit();
-      }
       $cart = $this->getCart();
       if (isset($cart[$id])) {
          unset($cart[$id]);
          $this->saveCart($cart);
-         $_SESSION['success'] = "Đã xóa sản phẩm khỏi giỏ hàng.";
+         echo json_encode([
+            'success' => true,
+            'message' => "Đã xóa sản phẩm khỏi giỏ hàng."
+         ], JSON_UNESCAPED_UNICODE);
+      } else {
+         http_response_code(404);
+         echo json_encode([
+            'success' => false,
+            'message' => "Không tìm thấy sản phẩm trong giỏ hàng."
+         ], JSON_UNESCAPED_UNICODE);
       }
-      header("Location: /cart");
       exit();
    }
 
+   /**
+    * PUT /api/cart/update
+    */
    public function update() {
-      if (!SessionHelper::isLoggedIn()) {
-         $_SESSION['error'] = "Bạn cần đăng nhập!";
-         header("Location: /account/login");
+      $quantities = $_POST['quantities'] ?? [];
+      if (empty($quantities) && isset($_POST['cart_items'])) {
+         // Hỗ trợ truyền mảng items trực tiếp
+         $quantities = $_POST['cart_items'];
+      }
+
+      if (empty($quantities)) {
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'message' => "Dữ liệu cập nhật giỏ hàng không hợp lệ!"
+         ], JSON_UNESCAPED_UNICODE);
          exit();
       }
-      if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quantities'])) {
-         $cart = $this->getCart();
-         foreach ($_POST['quantities'] as $id => $qty) {
-            $qty = (int)$qty;
-            if ($qty <= 0) {
-               unset($cart[$id]);
-            } else if (isset($cart[$id])) {
-               $cart[$id]['quantity'] = $qty;
-            }
+
+      $cart = $this->getCart();
+      foreach ($quantities as $id => $qty) {
+         $qty = (int)$qty;
+         if ($qty <= 0) {
+            unset($cart[$id]);
+         } else if (isset($cart[$id])) {
+            $cart[$id]['quantity'] = $qty;
          }
-         $this->saveCart($cart);
-         $_SESSION['success'] = "Cập nhật giỏ hàng thành công!";
       }
-      header("Location: /cart");
+      $this->saveCart($cart);
+
+      echo json_encode([
+         'success' => true,
+         'message' => "Cập nhật giỏ hàng thành công!",
+         'cart'    => $cart
+      ], JSON_UNESCAPED_UNICODE);
       exit();
    }
 
-   public function checkout() {
-      if (!SessionHelper::isLoggedIn()) {
-         $_SESSION['error'] = "Bạn cần đăng nhập để thanh toán!";
-         header("Location: /account/login");
+   /**
+    * POST /api/orders (Đặt hàng)
+    */
+   public function placeOrder() {
+      // Đặt hàng yêu cầu đăng nhập
+      $user = AuthMiddleware::requireAuth();
+
+      $name = $_POST['name'] ?? '';
+      $phone = $_POST['phone'] ?? '';
+      $address = $_POST['address'] ?? '';
+      $payment_method = $_POST['payment_method'] ?? 'cod';
+
+      if (empty($name) || empty($phone) || empty($address)) {
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'message' => "Vui lòng nhập đầy đủ thông tin giao hàng!"
+         ], JSON_UNESCAPED_UNICODE);
          exit();
       }
+
       $cart = $this->getCart();
       if (empty($cart)) {
-         $_SESSION['error'] = "Giỏ hàng trống. Vui lòng thêm sản phẩm trước khi thanh toán!";
-         header("Location: /");
-         exit();
-      }
-      include 'App/Views/Cart/Checkout.php';
-   }
-
-   public function placeOrder() {
-      if (!SessionHelper::isLoggedIn()) {
-         $_SESSION['error'] = "Bạn cần đăng nhập để đặt hàng!";
-         header("Location: /account/login");
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'message' => "Giỏ hàng của bạn đang trống."
+         ], JSON_UNESCAPED_UNICODE);
          exit();
       }
 
-      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-         $name = $_POST['name'] ?? '';
-         $phone = $_POST['phone'] ?? '';
-         $address = $_POST['address'] ?? '';
-         $payment_method = $_POST['payment_method'] ?? 'cod';
+      $total_usd = 0;
+      foreach ($cart as $item) {
+         $total_usd += $item['price'] * $item['quantity'];
+      }
 
-         if (empty($name) || empty($phone) || empty($address)) {
-            $_SESSION['error'] = "Vui lòng nhập đầy đủ thông tin giao hàng!";
-            header("Location: /cart/checkout");
+      if ($payment_method === 'vnpay') {
+         $exchange_rate = VNPayConfig::$config['exchange_rate'];
+         $total_vnd = (int)($total_usd * $exchange_rate);
+
+         $vnp_TxnRef = date("YmdHis") . "_" . uniqid();
+         $vnp_OrderInfo = "Thanh toan don hang #" . $vnp_TxnRef;
+
+         $pendingOrder = [
+            'username'   => $user['username'],
+            'name'       => $name,
+            'phone'      => $phone,
+            'address'    => $address,
+            'amount_usd' => $total_usd,
+            'amount_vnd' => $total_vnd,
+            'cart_items' => $cart
+         ];
+
+         // Lưu pending order vào Redis để xử lý sau khi VNPay callback (thay vì Session)
+         try {
+            $this->redis->setex('pending_order:' . $vnp_TxnRef, 1800, json_encode($pendingOrder));
+         } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+               'success' => false,
+               'message' => "Lỗi lưu trữ Redis: " . $e->getMessage()
+            ], JSON_UNESCAPED_UNICODE);
             exit();
          }
 
-         $cart = $this->getCart();
-         if (empty($cart)) {
-            $_SESSION['error'] = "Giỏ hàng của bạn đang trống.";
-            header("Location: /");
-            exit();
+         $vnp_TmnCode = VNPayConfig::$config['vnp_TmnCode'];
+         $vnp_HashSecret = VNPayConfig::$config['vnp_HashSecret'];
+         $vnp_Url = VNPayConfig::$config['vnp_Url'];
+         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+         
+         // Callback API VNPay nhận phản hồi thanh toán
+         $vnp_ReturnUrl = $protocol . $_SERVER['HTTP_HOST'] . '/api/orders/vnpay-return';
+
+         $vnp_OrderType = "billpayment";
+         $vnp_Amount = $total_vnd * 100;
+         $vnp_Locale = "vn";
+         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+         $vnp_Params = [
+            "vnp_Version"    => "2.1.0",
+            "vnp_Command"    => "pay",
+            "vnp_TmnCode"    => $vnp_TmnCode,
+            "vnp_Amount"     => $vnp_Amount,
+            "vnp_CreateDate" => date('YmdHis'),
+            "vnp_CurrCode"   => "VND",
+            "vnp_IpAddr"     => $vnp_IpAddr,
+            "vnp_Locale"     => $vnp_Locale,
+            "vnp_OrderInfo"  => $vnp_OrderInfo,
+            "vnp_OrderType"  => $vnp_OrderType,
+            "vnp_ReturnUrl"  => $vnp_ReturnUrl,
+            "vnp_TxnRef"     => $vnp_TxnRef
+         ];
+
+         ksort($vnp_Params);
+         $query = "";
+         $i = 0;
+         $hashdata = "";
+         foreach ($vnp_Params as $key => $value) {
+            if ($i == 1) {
+               $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+               $hashdata .= urlencode($key) . "=" . urlencode($value);
+               $i = 1;
+            }
+            $query .= urlencode($key) . "=" . urlencode($value) . '&';
          }
 
-         $total_usd = 0;
-         foreach ($cart as $item) {
-            $total_usd += $item['price'] * $item['quantity'];
-         }
+         $vnp_Url = $vnp_Url . "?" . $query;
+         $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+         $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
 
-         if ($payment_method === 'vnpay') {
-            $exchange_rate = VNPayConfig::$config['exchange_rate'];
-            $total_vnd = (int)($total_usd * $exchange_rate);
+         echo json_encode([
+            'success'    => true,
+            'paymentUrl' => $vnp_Url
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      } else if ($payment_method === 'cod') {
+         // Xử lý đơn hàng COD
+         try {
+            $this->db->beginTransaction();
 
-            $_SESSION['pending_order'] = [
-               'username' => SessionHelper::getUsername(),
-               'name' => $name,
-               'phone' => $phone,
-               'address' => $address,
-               'amount_usd' => $total_usd,
-               'amount_vnd' => $total_vnd,
-               'cart_items' => $cart
-            ];
+            $stmtOrder = $this->db->prepare(
+               "INSERT INTO orders (vnpay_txn_ref, customer_name, customer_phone, customer_address, total_usd, total_vnd, bank_code, payment_status, username) 
+                VALUES (:txn_ref, :name, :phone, :address, :total_usd, :total_vnd, 'COD', 'unpaid', :username)"
+            );
+            $txnRef = 'COD_' . date("YmdHis") . "_" . uniqid();
+            $totalVnd = 0; // COD không yêu cầu quy đổi VNPay
+            $stmtOrder->execute([
+               'txn_ref'  => $txnRef,
+               'name'     => $name,
+               'phone'    => $phone,
+               'address'  => $address,
+               'total_usd'=> $total_usd,
+               'total_vnd'=> $totalVnd,
+               'username' => $user['username']
+            ]);
 
-            $vnp_TmnCode = VNPayConfig::$config['vnp_TmnCode'];
-            $vnp_HashSecret = VNPayConfig::$config['vnp_HashSecret'];
-            $vnp_Url = VNPayConfig::$config['vnp_Url'];
-            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-            $vnp_ReturnUrl = $protocol . $_SERVER['HTTP_HOST'] . '/cart/vnpayReturn';
+            $orderId = (int)$this->db->lastInsertId();
 
-            $vnp_TxnRef = date("YmdHis") . "_" . uniqid();
-            $vnp_OrderInfo = "Thanh toan don hang #" . $vnp_TxnRef;
-            $vnp_OrderType = "billpayment";
-            $vnp_Amount = $total_vnd * 100;
-            $vnp_Locale = "vn";
-            $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-
-            $vnp_Params = [
-               "vnp_Version" => "2.1.0",
-               "vnp_Command" => "pay",
-               "vnp_TmnCode" => $vnp_TmnCode,
-               "vnp_Amount" => $vnp_Amount,
-               "vnp_CreateDate" => date('YmdHis'),
-               "vnp_CurrCode" => "VND",
-               "vnp_IpAddr" => $vnp_IpAddr,
-               "vnp_Locale" => $vnp_Locale,
-               "vnp_OrderInfo" => $vnp_OrderInfo,
-               "vnp_OrderType" => $vnp_OrderType,
-               "vnp_ReturnUrl" => $vnp_ReturnUrl,
-               "vnp_TxnRef" => $vnp_TxnRef
-            ];
-
-            ksort($vnp_Params);
-            $query = "";
-            $i = 0;
-            $hashdata = "";
-            foreach ($vnp_Params as $key => $value) {
-               if ($i == 1) {
-                  $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-               } else {
-                  $hashdata .= urlencode($key) . "=" . urlencode($value);
-                  $i = 1;
-               }
-               $query .= urlencode($key) . "=" . urlencode($value) . '&';
+            $stmtDetail = $this->db->prepare(
+               "INSERT INTO order_details (order_id, product_id, product_name, quantity, price) 
+                VALUES (:order_id, :product_id, :product_name, :quantity, :price)"
+            );
+            foreach ($cart as $productId => $item) {
+               $stmtDetail->execute([
+                  'order_id'     => $orderId,
+                  'product_id'   => $productId,
+                  'product_name' => $item['name'],
+                  'quantity'     => $item['quantity'],
+                  'price'        => $item['price']
+               ]);
             }
 
-            $vnp_Url = $vnp_Url . "?" . $query;
-            $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
-            $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+            $this->db->commit();
+            $this->clearCart();
 
-            header("Location: " . $vnp_Url);
+            echo json_encode([
+               'success'  => true,
+               'message'  => "Đặt hàng COD thành công!",
+               'order_id' => $orderId
+            ], JSON_UNESCAPED_UNICODE);
             exit();
-          } else {
-             $_SESSION['error'] = "Phương thức thanh toán không hợp lệ hoặc COD đã bị khóa!";
-             header("Location: /cart/checkout");
-             exit();
-          }
+         } catch (Exception $e) {
+            $this->db->rollBack();
+            http_response_code(500);
+            echo json_encode([
+               'success' => false,
+               'message' => "Lỗi khi đặt hàng: " . $e->getMessage()
+            ], JSON_UNESCAPED_UNICODE);
+            exit();
+         }
+      } else {
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'message' => "Phương thức thanh toán không hợp lệ!"
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
       }
-      header("Location: /");
-      exit();
    }
 
+   /**
+    * GET /api/orders/vnpay-return
+    */
    public function vnpayReturn() {
       $vnp_SecureHash = $_GET['vnp_SecureHash'] ?? '';
       $vnp_Params = [];
@@ -285,19 +370,33 @@ class CartController {
 
       $isValid = ($secureHash === $vnp_SecureHash);
       $responseCode = $_GET['vnp_ResponseCode'] ?? '';
+      $txnRef = $_GET['vnp_TxnRef'] ?? '';
+
+      // Lấy thông tin pending order từ Redis
+      $pending = [];
+      try {
+         $pendingJson = $this->redis->get('pending_order:' . $txnRef);
+         if ($pendingJson) {
+            $pending = json_decode($pendingJson, true);
+         }
+      } catch (Exception $e) {
+         error_log("Failed to fetch pending order from Redis: " . $e->getMessage());
+      }
 
       if ($isValid && $responseCode === '00') {
-         $this->clearCart();
-         $pending = $_SESSION['pending_order'] ?? [];
-         unset($_SESSION['pending_order']);
+         // Xóa giỏ hàng của người dùng (vì thanh toán thành công)
+         if (!empty($pending['username'])) {
+            $this->cartKey = 'cart:user:' . $pending['username'];
+            $this->clearCart();
+         }
 
          try {
             $this->db->beginTransaction();
 
             $stmtOrder = $this->db->prepare(
-               "INSERT INTO orders (vnpay_txn_ref, customer_name, customer_phone, customer_address, total_usd, total_vnd, bank_code, payment_status, username) VALUES (:txn_ref, :name, :phone, :address, :total_usd, :total_vnd, :bank_code, 'paid', :username)"
+               "INSERT INTO orders (vnpay_txn_ref, customer_name, customer_phone, customer_address, total_usd, total_vnd, bank_code, payment_status, username) 
+                VALUES (:txn_ref, :name, :phone, :address, :total_usd, :total_vnd, :bank_code, 'paid', :username)"
             );
-            $txnRef = $_GET['vnp_TxnRef'] ?? '';
             $bankCode = $_GET['vnp_BankCode'] ?? '';
             $totalUsd = $pending['amount_usd'] ?? 0;
             $totalVnd = $pending['amount_vnd'] ?? 0;
@@ -305,79 +404,74 @@ class CartController {
             $custPhone = $pending['phone'] ?? '';
             $custAddress = $pending['address'] ?? '';
             $usernameVal = $pending['username'] ?? null;
-            $stmtOrder->bindParam(':txn_ref', $txnRef);
-            $stmtOrder->bindParam(':name', $custName);
-            $stmtOrder->bindParam(':phone', $custPhone);
-            $stmtOrder->bindParam(':address', $custAddress);
-            $stmtOrder->bindParam(':total_usd', $totalUsd);
-            $stmtOrder->bindParam(':total_vnd', $totalVnd);
-            $stmtOrder->bindParam(':bank_code', $bankCode);
-            $stmtOrder->bindParam(':username', $usernameVal);
-            $stmtOrder->execute();
+            
+            $stmtOrder->execute([
+               'txn_ref'  => $txnRef,
+               'name'     => $custName,
+               'phone'    => $custPhone,
+               'address'  => $custAddress,
+               'total_usd'=> $totalUsd,
+               'total_vnd'=> $totalVnd,
+               'bank_code'=> $bankCode,
+               'username' => $usernameVal
+            ]);
 
             $orderId = (int)$this->db->lastInsertId();
 
             $cartItems = $pending['cart_items'] ?? [];
             $stmtDetail = $this->db->prepare(
-               "INSERT INTO order_details (order_id, product_id, product_name, quantity, price) VALUES (:order_id, :product_id, :product_name, :quantity, :price)"
+               "INSERT INTO order_details (order_id, product_id, product_name, quantity, price) 
+                VALUES (:order_id, :product_id, :product_name, :quantity, :price)"
             );
             foreach ($cartItems as $productId => $item) {
-               $prodName = $item['name'] ?? '';
-               $qty = $item['quantity'];
-               $price = $item['price'];
-               $stmtDetail->bindParam(':order_id', $orderId);
-               $stmtDetail->bindParam(':product_id', $productId);
-               $stmtDetail->bindParam(':product_name', $prodName);
-               $stmtDetail->bindParam(':quantity', $qty);
-               $stmtDetail->bindParam(':price', $price);
-               $stmtDetail->execute();
+               $stmtDetail->execute([
+                  'order_id'     => $orderId,
+                  'product_id'   => $productId,
+                  'product_name' => $item['name'],
+                  'quantity'     => $item['quantity'],
+                  'price'        => $item['price']
+               ]);
             }
 
             $this->db->commit();
+            
+            // Xóa pending order
+            try {
+               $this->redis->del('pending_order:' . $txnRef);
+            } catch (Exception $e) {
+               // Ignore
+            }
          } catch (Exception $e) {
             $this->db->rollBack();
+            error_log("Failed to insert VNPay order details: " . $e->getMessage());
          }
 
-         $orderData = [
-            'success' => true,
-            'txnRef' => $_GET['vnp_TxnRef'] ?? '',
-            'amount' => $_GET['vnp_Amount'] ?? 0,
-            'bankCode' => $_GET['vnp_BankCode'] ?? '',
-            'payDate' => $_GET['vnp_PayDate'] ?? '',
-            'recipient' => $pending
-         ];
-
-         include 'App/Views/Cart/VNPayResult.php';
-         
+         // Redirect về Frontend kèm trạng thái thành công
+         $redirectUrl = AppConfig::$frontendUrl . '/payment-result?success=true&txnRef=' . urlencode($txnRef) . '&amount=' . urlencode($_GET['vnp_Amount'] ?? 0);
+         header("Location: " . $redirectUrl);
          exit();
       } else {
-         $orderData = [
-            'success' => false,
-            'responseCode' => $responseCode,
-            'txnRef' => $_GET['vnp_TxnRef'] ?? '',
-            'amount' => $_GET['vnp_Amount'] ?? 0
-         ];
-         include 'App/Views/Cart/VNPayResult.php';
+         // Redirect về Frontend kèm trạng thái thất bại
+         $redirectUrl = AppConfig::$frontendUrl . '/payment-result?success=false&txnRef=' . urlencode($txnRef) . '&responseCode=' . urlencode($responseCode);
+         header("Location: " . $redirectUrl);
          exit();
       }
    }
 
+   /**
+    * GET /api/orders
+    */
    public function orders() {
-      if (!SessionHelper::isLoggedIn()) {
-         $_SESSION['error'] = "Bạn cần đăng nhập để xem lịch sử đơn hàng!";
-         header("Location: /account/login");
-         exit();
-      }
+      $user = AuthMiddleware::requireAuth();
 
-      $username = SessionHelper::getUsername();
-      $isAdmin = SessionHelper::isAdmin();
+      $isAdmin = (($user['role'] ?? '') === 'admin');
 
       if ($isAdmin) {
          $stmt = $this->db->prepare("SELECT * FROM orders ORDER BY created_at DESC");
          $stmt->execute();
       } else {
          $stmt = $this->db->prepare("SELECT * FROM orders WHERE username = :username ORDER BY created_at DESC");
-         $stmt->execute(['username' => $username]);
+         $stmt->execute(['username' => $user['username']]);
       }
       $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -389,7 +483,11 @@ class CartController {
          $order['details'] = $stmtDetail->fetchAll(PDO::FETCH_ASSOC);
       }
 
-      include 'App/Views/Cart/Orders.php';
+      echo json_encode([
+         'success' => true,
+         'orders'  => $orders
+      ], JSON_UNESCAPED_UNICODE);
+      exit();
    }
 
    private function getCart(): array {
@@ -397,7 +495,6 @@ class CartController {
          $cartJson = $this->redis->get($this->cartKey);
          return $cartJson ? json_decode($cartJson, true) : [];
       } catch (Exception $e) {
-         $_SESSION['error'] = "Lỗi kết nối Redis. Không thể thao tác giỏ hàng: " . $e->getMessage();
          return [];
       }
    }
@@ -406,7 +503,7 @@ class CartController {
       try {
          $this->redis->setex($this->cartKey, 604800, json_encode($cart));
       } catch (Exception $e) {
-         $_SESSION['error'] = "Không thể lưu giỏ hàng vào Redis: " . $e->getMessage();
+         error_log("Failed to save cart to Redis: " . $e->getMessage());
       }
    }
 
@@ -414,10 +511,8 @@ class CartController {
       try {
          $this->redis->del($this->cartKey);
       } catch (Exception $e) {
-         $_SESSION['error'] = "Không thể xóa giỏ hàng trong Redis: " . $e->getMessage();
+         error_log("Failed to clear cart in Redis: " . $e->getMessage());
       }
    }
-
 }
-
 ?>

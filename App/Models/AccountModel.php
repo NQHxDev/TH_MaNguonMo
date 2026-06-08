@@ -28,7 +28,8 @@ class AccountModel {
  
         $username = htmlspecialchars(strip_tags($username)); 
         $fullName = htmlspecialchars(strip_tags($fullName)); 
-        $passwordHash = password_hash($password, PASSWORD_BCRYPT); 
+        // Nếu password rỗng (đăng nhập bằng social), lưu NULL thay vì hash chuỗi rỗng
+        $passwordHash = !empty($password) ? password_hash($password, PASSWORD_BCRYPT) : null; 
         $role = htmlspecialchars(strip_tags($role)); 
  
         return $stmt->execute([
@@ -53,6 +54,71 @@ class AccountModel {
             'role' => $role,
             'username' => $username
         ]); 
+    }
+    public function getAccountById(int $id) { 
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id LIMIT 1"; 
+        $stmt = $this->conn->prepare($query); 
+        $stmt->execute(['id' => $id]); 
+        return $stmt->fetch(PDO::FETCH_OBJ); 
+    }
+
+    public function getSocialAccount(string $provider, string $providerUserId) {
+        $query = "SELECT * FROM account_social WHERE provider = :provider AND provider_user_id = :provider_user_id LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([
+            'provider' => $provider,
+            'provider_user_id' => $providerUserId
+        ]);
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    public function linkSocialAccount(int $accountId, string $provider, string $providerUserId, string $providerEmail, string $accessToken): bool {
+        $query = "INSERT INTO account_social (account_id, provider, provider_user_id, provider_email, access_token) 
+                  VALUES (:account_id, :provider, :provider_user_id, :provider_email, :access_token)
+                  ON DUPLICATE KEY UPDATE access_token = VALUES(access_token), provider_email = VALUES(provider_email)";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([
+            'account_id' => $accountId,
+            'provider' => $provider,
+            'provider_user_id' => $providerUserId,
+            'provider_email' => $providerEmail,
+            'access_token' => $accessToken
+        ]);
+    }
+
+    public function updateSocialAccessToken(int $id, string $accessToken): bool {
+        $query = "UPDATE account_social SET access_token = :access_token WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([
+            'id' => $id,
+            'access_token' => $accessToken
+        ]);
+    }
+
+    public function updatePassword(int $id, string $newPassword): bool {
+        $query = "UPDATE " . $this->table_name . " SET password = :password WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $passwordHash = password_hash($newPassword, PASSWORD_BCRYPT);
+        return $stmt->execute([
+            'password' => $passwordHash,
+            'id' => $id
+        ]);
+    }
+
+    public function getLinkedSocialProviders(int $accountId): array {
+        $query = "SELECT provider, provider_email, created_at FROM account_social WHERE account_id = :account_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute(['account_id' => $accountId]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function updateProfile(int $id, string $fullname): bool {
+        $query = "UPDATE " . $this->table_name . " SET fullname = :fullname WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([
+            'fullname' => htmlspecialchars(strip_tags($fullname)),
+            'id' => $id
+        ]);
     }
 } 
 ?>
