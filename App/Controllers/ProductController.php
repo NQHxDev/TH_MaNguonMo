@@ -3,178 +3,328 @@
 require_once 'App/Config/Database.php';
 require_once 'App/Models/ProductModel.php';
 require_once 'App/Models/CategoryModel.php';
+require_once 'App/Utils/AuthMiddleware.php';
 
 class ProductController {
 
    private PDO $db;
 
    public function __construct() {
-      if (session_status() === PHP_SESSION_NONE) {
-         session_start();
-      }
-      if (!SessionHelper::isAdmin()) {
-         $_SESSION['error'] = "Bạn không có quyền truy cập!";
-         header("Location: /");
-         exit();
-      }
       $this->db = Database::getConnection();
    }
 
-   public function index() {
-      $this->list();
-   }
-
-   public function list(){
+   /**
+    * GET /api/products
+    */
+   public function list() {
       $products = ProductModel::getAll($this->db);
-      $data = ['products' => $products];
-      extract($data);
-      include 'App/Views/Product/List.php';
-   }
-
-   public function create() {
-      $errors = [];
-      $categories = CategoryModel::getAll($this->db);
-
-      if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-         $name = $_POST['name'] ?? '';
-         $description = $_POST['description'] ?? '';
-         $price = $_POST['price'] ?? '';
-         $category_id = $_POST['category_id'] ?? null;
-
-         if (empty($name)) {
-            $errors[] = "Tên sản phẩm không được để trống";
-         } else if (strlen($name) < 10 || strlen($name) > 100){
-            $errors[] = "Tên sản phẩm phải từ 10 đến 100 ký tự";
-         }
-
-         if (empty($price)) {
-            $errors[] = "Giá sản phẩm không được để trống";
-         } else if (!is_numeric($price)) {
-            $errors[] = "Giá sản phẩm phải là số";
-         } else if ($price <= 0) {
-            $errors[] = "Giá sản phẩm phải lớn hơn 0";
-         }
-
-         $mainImagePath = null;
-         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $mainImagePath = $this->handleFileUpload($_FILES['image']);
-            if (!$mainImagePath) {
-               $errors[] = "Lỗi tải ảnh chính (vui lòng chọn ảnh < 5MB và định dạng JPG/PNG/WEBP/GIF).";
-            }
-         }
-
-         $subImagePaths = [];
-         if (isset($_FILES['sub_images']) && !empty($_FILES['sub_images']['name'][0])) {
-            $subImagePaths = $this->handleMultipleUploads($_FILES['sub_images']);
-         }
-
-         if (empty($errors)) {
-            $product = new ProductModel(
-               null, 
-               $name, 
-               $description, 
-               (float)$price, 
-               $mainImagePath, 
-               $category_id ? (int)$category_id : null,
-               null,
-               $subImagePaths
-            );
-            
-            if ($product->create($this->db)) {
-               $_SESSION['success'] = "Thêm sản phẩm thành công!";
-               header("Location: /product/list");
-               exit();
-            } else {
-               $errors[] = "Lỗi khi thêm sản phẩm vào cơ sở dữ liệu.";
-            }
-         }
+      $serializedProducts = [];
+      
+      foreach ($products as $p) {
+         $serializedProducts[] = [
+            'id'            => $p->getID(),
+            'name'          => $p->getName(),
+            'description'   => $p->getDescription(),
+            'price'         => $p->getPrice(),
+            'image'         => $p->getImage(),
+            'category_id'   => $p->getCategoryID(),
+            'category_name' => $p->getCategoryName(),
+            'sub_images'    => $p->getSubImages()
+         ];
       }
 
-      include 'App/Views/Product/Create.php';
+      echo json_encode([
+         'success'  => true,
+         'products' => $serializedProducts
+      ], JSON_UNESCAPED_UNICODE);
+      exit();
    }
 
-   public function edit(int $id) {
+   /**
+    * GET /api/products/{id}
+    */
+   public function detail(int $id) {
       $product = ProductModel::getById($this->db, $id);
       if (!$product) {
-         die('Không tìm thấy sản phẩm!');
+         http_response_code(404);
+         echo json_encode([
+            'success' => false,
+            'message' => 'Không tìm thấy sản phẩm!'
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
       }
 
-      $categories = CategoryModel::getAll($this->db);
-      $errors = [];
-
-      if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-         $name = $_POST['name'] ?? '';
-         $description = $_POST['description'] ?? '';
-         $price = $_POST['price'] ?? '';
-         $category_id = $_POST['category_id'] ?? null;
-
-         if (empty($name)) {
-            $errors[] = "Tên sản phẩm không được để trống";
-         } else if (strlen($name) < 10 || strlen($name) > 100){
-            $errors[] = "Tên sản phẩm phải từ 10 đến 100 ký tự";
-         }
-
-         if (empty($price)) {
-            $errors[] = "Giá sản phẩm không được để trống";
-         } else if (!is_numeric($price)) {
-            $errors[] = "Giá sản phẩm phải là số";
-         } else if ($price <= 0) {
-            $errors[] = "Giá sản phẩm phải lớn hơn 0";
-         }
-
-         if (empty($errors)) {
-            $product->setName($name);
-            $product->setDescription($description);
-            $product->setPrice((float)$price);
-            $product->setCategoryID($category_id ? (int)$category_id : null);
-
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-               $newMainImage = $this->handleFileUpload($_FILES['image']);
-               if ($newMainImage) {
-                  $oldImage = $product->getImage();
-                  if ($oldImage) {
-                     $localOldImage = ltrim($oldImage, '/');
-                     if (file_exists($localOldImage)) {
-                        @unlink($localOldImage);
-                     }
-                  }
-                  $product->setImage($newMainImage);
-               } else {
-                  $errors[] = "Lỗi khi tải lên ảnh chính mới.";
-               }
-            }
-
-            if (isset($_FILES['sub_images']) && !empty($_FILES['sub_images']['name'][0])) {
-               $newSubImages = $this->handleMultipleUploads($_FILES['sub_images']);
-               if (!empty($newSubImages)) {
-                  $product->setSubImages($newSubImages);
-               }
-            }
-
-            if (empty($errors)) {
-               if ($product->update($this->db)) {
-                  $_SESSION['success'] = "Cập nhật sản phẩm thành công!";
-                  header("Location: /product/list");
-                  exit();
-               } else {
-                  $errors[] = "Lỗi khi cập nhật sản phẩm vào cơ sở dữ liệu.";
-               }
-            }
-         }
-      }
-
-      include 'App/Views/Product/Edit.php';
+      echo json_encode([
+         'success' => true,
+         'product' => [
+            'id'            => $product->getID(),
+            'name'          => $product->getName(),
+            'description'   => $product->getDescription(),
+            'price'         => $product->getPrice(),
+            'image'         => $product->getImage(),
+            'category_id'   => $product->getCategoryID(),
+            'category_name' => $product->getCategoryName(),
+            'sub_images'    => $product->getSubImages()
+         ]
+      ], JSON_UNESCAPED_UNICODE);
+      exit();
    }
 
-   public function delete(int $id) {
-      if (ProductModel::delete($this->db, $id)) {
-         $_SESSION['success'] = "Xóa sản phẩm thành công!";
-      } else {
-         $_SESSION['error'] = "Lỗi khi xóa sản phẩm.";
+   /**
+    * GET /api/categories
+    */
+   public function categories() {
+      $categories = CategoryModel::getAll($this->db);
+      $serializedCategories = [];
+      
+      foreach ($categories as $cat) {
+         $serializedCategories[] = [
+            'id'          => $cat->getId(),
+            'name'        => $cat->getName(),
+            'description' => $cat->getDescription()
+         ];
       }
 
-      header("Location: /product/list");
+      echo json_encode([
+         'success'    => true,
+         'categories' => $serializedCategories
+      ], JSON_UNESCAPED_UNICODE);
       exit();
+   }
+
+   /**
+    * POST /api/products (Requires Admin)
+    */
+   public function create() {
+      AuthMiddleware::requireAdmin();
+
+      $errors = [];
+      $name = $_POST['name'] ?? '';
+      $description = $_POST['description'] ?? '';
+      $price = $_POST['price'] ?? '';
+      $category_id = $_POST['category_id'] ?? null;
+
+      if (empty($name)) {
+         $errors[] = "Tên sản phẩm không được để trống";
+      } else if (strlen($name) < 10 || strlen($name) > 100){
+         $errors[] = "Tên sản phẩm phải từ 10 đến 100 ký tự";
+      }
+
+      if (empty($price)) {
+         $errors[] = "Giá sản phẩm không được để trống";
+      } else if (!is_numeric($price)) {
+         $errors[] = "Giá sản phẩm phải là số";
+      } else if ($price <= 0) {
+         $errors[] = "Giá sản phẩm phải lớn hơn 0";
+      }
+
+      $images = $this->parseOrderedImages($errors);
+      $mainImagePath = $images[0] ?? null;
+      $subImagePaths = array_slice($images, 1);
+
+      if (!empty($errors)) {
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'errors'  => $errors
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+
+      $product = new ProductModel(
+         null, 
+         $name, 
+         $description, 
+         (float)$price, 
+         $mainImagePath, 
+         $category_id ? (int)$category_id : null,
+         null,
+         $subImagePaths
+      );
+      
+      if ($product->create($this->db)) {
+         http_response_code(201);
+         echo json_encode([
+            'success'    => true,
+            'message'    => "Thêm sản phẩm thành công!",
+            'product_id' => $product->getID()
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      } else {
+         http_response_code(500);
+         echo json_encode([
+            'success' => false,
+            'message' => "Lỗi khi thêm sản phẩm vào cơ sở dữ liệu."
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+   }
+
+   /**
+    * PUT /api/products/{id} (Requires Admin)
+    */
+   public function edit(int $id) {
+      AuthMiddleware::requireAdmin();
+
+      $product = ProductModel::getById($this->db, $id);
+      if (!$product) {
+         http_response_code(404);
+         echo json_encode([
+            'success' => false,
+            'message' => 'Không tìm thấy sản phẩm!'
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+
+      $errors = [];
+      $name = $_POST['name'] ?? '';
+      $description = $_POST['description'] ?? '';
+      $price = $_POST['price'] ?? '';
+      $category_id = $_POST['category_id'] ?? null;
+
+      if (empty($name)) {
+         $errors[] = "Tên sản phẩm không được để trống";
+      } else if (strlen($name) < 10 || strlen($name) > 100){
+         $errors[] = "Tên sản phẩm phải từ 10 đến 100 ký tự";
+      }
+
+      if (empty($price)) {
+         $errors[] = "Giá sản phẩm không được để trống";
+      } else if (!is_numeric($price)) {
+         $errors[] = "Giá sản phẩm phải là số";
+      } else if ($price <= 0) {
+         $errors[] = "Giá sản phẩm phải lớn hơn 0";
+      }
+
+      if (!empty($errors)) {
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'errors'  => $errors
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+
+      $product->setName($name);
+      $product->setDescription($description);
+      $product->setPrice((float)$price);
+      $product->setCategoryID($category_id ? (int)$category_id : null);
+
+      $images = $this->parseOrderedImages($errors);
+
+      if (!empty($errors)) {
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'errors'  => $errors
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+
+      // Collect all old image paths
+      $oldImages = [];
+      if ($product->getImage()) {
+         $oldImages[] = $product->getImage();
+      }
+      if (!empty($product->getSubImages())) {
+         $oldImages = array_merge($oldImages, $product->getSubImages());
+      }
+
+      // Compare and unlink any old images that were removed in the edit
+      $deletedImages = array_diff($oldImages, $images);
+      foreach ($deletedImages as $delImg) {
+         $localImg = ltrim($delImg, '/');
+         if (file_exists($localImg)) {
+            @unlink($localImg);
+         }
+      }
+
+      $mainImagePath = $images[0] ?? null;
+      $subImagePaths = array_slice($images, 1);
+
+      $product->setImage($mainImagePath);
+      $product->setSubImages($subImagePaths);
+
+      if ($product->update($this->db)) {
+         echo json_encode([
+            'success' => true,
+            'message' => "Cập nhật sản phẩm thành công!"
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      } else {
+         http_response_code(500);
+         echo json_encode([
+            'success' => false,
+            'message' => "Lỗi khi cập nhật sản phẩm vào cơ sở dữ liệu."
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+   }
+
+   /**
+    * DELETE /api/products/{id} (Requires Admin)
+    */
+   public function delete(int $id) {
+      AuthMiddleware::requireAdmin();
+
+      if (ProductModel::delete($this->db, $id)) {
+         echo json_encode([
+            'success' => true,
+            'message' => "Xóa sản phẩm thành công!"
+         ], JSON_UNESCAPED_UNICODE);
+      } else {
+         http_response_code(500);
+         echo json_encode([
+            'success' => false,
+            'message' => "Lỗi khi xóa sản phẩm."
+         ], JSON_UNESCAPED_UNICODE);
+      }
+      exit();
+   }
+
+   private function parseOrderedImages(array &$errors): array {
+      $images = [];
+      $maxIndex = -1;
+      if (isset($_POST['images']) && is_array($_POST['images'])) {
+         foreach (array_keys($_POST['images']) as $idx) {
+            if (is_numeric($idx) && (int)$idx > $maxIndex) {
+               $maxIndex = (int)$idx;
+            }
+         }
+      }
+      if (isset($_FILES['images']['name']) && is_array($_FILES['images']['name'])) {
+         foreach (array_keys($_FILES['images']['name']) as $idx) {
+            if (is_numeric($idx) && (int)$idx > $maxIndex) {
+               $maxIndex = (int)$idx;
+            }
+         }
+      }
+
+      for ($i = 0; $i <= $maxIndex; $i++) {
+         if (isset($_POST['images'][$i]) && is_string($_POST['images'][$i])) {
+            $images[] = $_POST['images'][$i];
+         } elseif (isset($_FILES['images']['name'][$i])) {
+            $singleFile = [
+               'name'     => $_FILES['images']['name'][$i],
+               'type'     => $_FILES['images']['type'][$i],
+               'tmp_name' => $_FILES['images']['tmp_name'][$i],
+               'error'    => $_FILES['images']['error'][$i],
+               'size'     => $_FILES['images']['size'][$i]
+            ];
+            $uploadedPath = $this->handleFileUpload($singleFile);
+            if ($uploadedPath) {
+               $images[] = $uploadedPath;
+            } else {
+               $errors[] = "Lỗi khi tải lên hình ảnh vị trí số " . ($i + 1) . " (chọn ảnh < 5MB và định dạng JPG/PNG/WEBP/GIF).";
+            }
+         }
+      }
+
+      if (empty($images) && empty($errors)) {
+         $errors[] = "Sản phẩm phải có ít nhất một hình ảnh";
+      }
+
+      return $images;
    }
 
    private function handleFileUpload(array $file): ?string {
@@ -246,7 +396,5 @@ class ProductController {
       }
       return $uploadedPaths;
    }
-
 }
-
 ?>

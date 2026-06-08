@@ -210,20 +210,11 @@ class ProductModel {
             'id'          => $this->ID
          ]);
 
+         // Luôn đồng bộ danh sách ảnh phụ trong cơ sở dữ liệu
+         $delStmt = $db->prepare("DELETE FROM product_image WHERE product_id = ?");
+         $delStmt->execute([$this->ID]);
+
          if ($this->SubImages !== null && !empty($this->SubImages)) {
-            $oldImgStmt = $db->prepare("SELECT image_path FROM product_image WHERE product_id = ?");
-            $oldImgStmt->execute([$this->ID]);
-            $oldImages = $oldImgStmt->fetchAll(PDO::FETCH_COLUMN);
-            foreach ($oldImages as $oldImg) {
-               $localImg = ltrim($oldImg, '/');
-               if (file_exists($localImg)) {
-                  @unlink($localImg);
-               }
-            }
-
-            $delStmt = $db->prepare("DELETE FROM product_image WHERE product_id = ?");
-            $delStmt->execute([$this->ID]);
-
             $insertImg = $db->prepare("INSERT INTO product_image (product_id, image_path) VALUES (?, ?)");
             foreach ($this->SubImages as $subImg) {
                $insertImg->execute([$this->ID, $subImg]);

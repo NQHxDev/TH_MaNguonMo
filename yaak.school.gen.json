@@ -1,0 +1,1463 @@
+{
+   "yaakVersion": "2026.4.0",
+   "yaakSchema": 4,
+   "timestamp": "2026-06-08T15:36:39.455359900",
+   "resources": {
+      "workspaces": [
+         {
+            "model": "workspace",
+            "id": "wk_W7DAzkTvzY",
+            "createdAt": "2026-06-08T15:12:39.377398",
+            "updatedAt": "2026-06-08T15:12:39.377401400",
+            "authentication": {},
+            "authenticationType": null,
+            "description": "",
+            "headers": [],
+            "name": "School V2",
+            "encryptionKeyChallenge": null,
+            "settingValidateCertificates": true,
+            "settingFollowRedirects": true,
+            "settingRequestTimeout": 0,
+            "settingDnsOverrides": [],
+            "settingSendCookies": true,
+            "settingStoreCookies": true
+         }
+      ],
+      "environments": [
+         {
+            "model": "environment",
+            "id": "ev_RkpLuX5zP8",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "createdAt": "2026-06-08T15:12:40.735387200",
+            "updatedAt": "2026-06-08T15:12:54.067404100",
+            "name": "Global Variables",
+            "public": false,
+            "base": true,
+            "parentModel": "workspace",
+            "parentId": null,
+            "variables": [
+               {
+                  "enabled": true,
+                  "name": "BaseURL",
+                  "value": "http://localhost/api",
+                  "id": "QB8ibT48Np"
+               }
+            ],
+            "color": null,
+            "sortPriority": 0.0
+         }
+      ],
+      "folders": [
+         {
+            "model": "folder",
+            "id": "fl_KGCS9w7Zbs",
+            "createdAt": "2026-06-08T15:26:37.443800500",
+            "updatedAt": "2026-06-08T15:26:37.443801100",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": null,
+            "authentication": {},
+            "authenticationType": null,
+            "description": "",
+            "headers": [],
+            "name": "Products",
+            "sortPriority": -1780932397440.0,
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "folder",
+            "id": "fl_SSxXxVEcAq",
+            "createdAt": "2026-06-08T15:23:56.302792800",
+            "updatedAt": "2026-06-08T15:23:56.302794",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": null,
+            "authentication": {},
+            "authenticationType": null,
+            "description": "",
+            "headers": [],
+            "name": "Manager",
+            "sortPriority": -1780932236300.0,
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "folder",
+            "id": "fl_bXg6afiTGX",
+            "createdAt": "2026-06-08T15:19:43.400758700",
+            "updatedAt": "2026-06-08T15:19:43.400759300",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": null,
+            "authentication": {},
+            "authenticationType": null,
+            "description": "",
+            "headers": [],
+            "name": "Account",
+            "sortPriority": -1780931983398.0,
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "folder",
+            "id": "fl_tghsnTEyV7",
+            "createdAt": "2026-06-08T15:13:07.759960100",
+            "updatedAt": "2026-06-08T15:13:07.759960900",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": null,
+            "authentication": {},
+            "authenticationType": null,
+            "description": "",
+            "headers": [],
+            "name": "Auth",
+            "sortPriority": -1780931587752.0,
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "folder",
+            "id": "fl_CartFolder",
+            "createdAt": "2026-06-08T15:36:00.000Z",
+            "updatedAt": "2026-06-08T15:36:00.000Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": null,
+            "authentication": {},
+            "authenticationType": null,
+            "description": "",
+            "headers": [],
+            "name": "Cart",
+            "sortPriority": 0.0,
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "folder",
+            "id": "fl_OrdrFolder",
+            "createdAt": "2026-06-08T15:36:00.000Z",
+            "updatedAt": "2026-06-08T15:36:00.000Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": null,
+            "authentication": {},
+            "authenticationType": null,
+            "description": "",
+            "headers": [],
+            "name": "Orders",
+            "sortPriority": 0.0,
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         }
+      ],
+      "httpRequests": [
+         {
+            "model": "http_request",
+            "id": "rq_3dzZCSg3zA",
+            "createdAt": "2026-06-08T15:29:00.267995600",
+            "updatedAt": "2026-06-08T15:35:20.991548300",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_KGCS9w7Zbs",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {
+               "form": [
+                  {
+                     "enabled": true,
+                     "id": "fvxVbqyQ2y",
+                     "name": "name",
+                     "value": "Sản Phẩm B"
+                  },
+                  {
+                     "enabled": true,
+                     "id": "K50pricYzR",
+                     "name": "description",
+                     "value": ""
+                  },
+                  {
+                     "enabled": true,
+                     "id": "EfWVCuYhNR",
+                     "name": "price",
+                     "value": "25"
+                  },
+                  {
+                     "enabled": true,
+                     "id": "5UxurqaRNb",
+                     "name": "category_id",
+                     "value": "1"
+                  },
+                  {
+                     "enabled": true,
+                     "id": "NiybzgWaus",
+                     "name": "",
+                     "value": ""
+                  }
+               ]
+            },
+            "bodyType": "multipart/form-data",
+            "description": "",
+            "headers": [
+               {
+                  "enabled": true,
+                  "name": "Content-Type",
+                  "value": "multipart/form-data",
+                  "id": "X4jmHjyRbC"
+               }
+            ],
+            "method": "POST",
+            "name": "Create Product",
+            "sortPriority": -1780931612862.994,
+            "url": "${[ BaseURL ]}/products",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_gW9AmCdh4x",
+            "createdAt": "2026-06-08T15:28:22.334609800",
+            "updatedAt": "2026-06-08T15:28:34.595012500",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_KGCS9w7Zbs",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Get Category List",
+            "sortPriority": -1780931612862.994,
+            "url": "${[ BaseURL ]}/categories",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_pLSwiguLs2",
+            "createdAt": "2026-06-08T15:27:43.430130900",
+            "updatedAt": "2026-06-08T15:28:19.005203500",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_KGCS9w7Zbs",
+            "authentication": {},
+            "authenticationType": "none",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Get Product Detail",
+            "sortPriority": -1780931612862.995,
+            "url": "${[ BaseURL ]}/products/1",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_Yu5GUg4exC",
+            "createdAt": "2026-06-08T15:26:49.052108300",
+            "updatedAt": "2026-06-08T15:27:06.788846100",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_KGCS9w7Zbs",
+            "authentication": {},
+            "authenticationType": "none",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Get Product List",
+            "sortPriority": -1780931612862.996,
+            "url": "${[ BaseURL ]}/products",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_BVPfZQSCm2",
+            "createdAt": "2026-06-08T15:25:16.140485",
+            "updatedAt": "2026-06-08T15:26:25.431622800",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_SSxXxVEcAq",
+            "authentication": {
+               "disabled": false,
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {
+               "text": "{\n  \"username\": \"anhjkr\",\n  \"role\": \"admin\"\n}"
+            },
+            "bodyType": "application/json",
+            "description": "",
+            "headers": [
+               {
+                  "enabled": true,
+                  "name": "Content-Type",
+                  "value": "application/json",
+                  "id": "uniQvNUJRU"
+               }
+            ],
+            "method": "PUT",
+            "name": "Update User Role",
+            "sortPriority": -1780931612862.996,
+            "url": "${[ BaseURL ]}/admin/accounts/role",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_CcybEHJzWb",
+            "createdAt": "2026-06-08T15:24:00.122866400",
+            "updatedAt": "2026-06-08T15:25:07.934970500",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_SSxXxVEcAq",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Get User Accounts",
+            "sortPriority": -1780931612862.996,
+            "url": "${[ BaseURL ]}/admin/accounts",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_VvV8Y2MKTY",
+            "createdAt": "2026-06-08T15:23:01.909406300",
+            "updatedAt": "2026-06-08T15:24:34.595783200",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_bXg6afiTGX",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {
+               "text": "{\n  \"fullname\": \"NQHxZeion\"\n}"
+            },
+            "bodyType": "application/json",
+            "description": "",
+            "headers": [
+               {
+                  "enabled": true,
+                  "name": "Content-Type",
+                  "value": "application/json",
+                  "id": "zs0DQUCEhi"
+               }
+            ],
+            "method": "PUT",
+            "name": "Update Profile Info",
+            "sortPriority": -1780931612862.996,
+            "url": "${[ BaseURL ]}/account/update",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_6m4h3WWTm9",
+            "createdAt": "2026-06-08T15:21:09.900408200",
+            "updatedAt": "2026-06-08T15:24:26.734889400",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_bXg6afiTGX",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {
+               "text": "{\n  \"current_password\": \"Anhhung1@\",\n  \"new_password\": \"Anhhung582005@\",\n  \"confirm_password\": \"Anhhung582005@\"\n}"
+            },
+            "bodyType": "application/json",
+            "description": "",
+            "headers": [
+               {
+                  "enabled": true,
+                  "name": "Content-Type",
+                  "value": "application/json",
+                  "id": "2WxB9wEVdJ"
+               }
+            ],
+            "method": "PUT",
+            "name": "Update Password",
+            "sortPriority": -1780931612862.997,
+            "url": "${[ BaseURL ]}/account/password",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_ufKaNB8yfH",
+            "createdAt": "2026-06-08T15:20:06.717984",
+            "updatedAt": "2026-06-08T15:21:42.804060300",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_bXg6afiTGX",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Get Profile",
+            "sortPriority": -1780931612862.998,
+            "url": "${[ BaseURL ]}/account/profile",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_mpisH5UkBr",
+            "createdAt": "2026-06-08T15:18:21.440339900",
+            "updatedAt": "2026-06-08T15:21:57.107237500",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Get Me",
+            "sortPriority": -1780931612862.998,
+            "url": "${[ BaseURL ]}/auth/me",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_88JYnaM4qc",
+            "createdAt": "2026-06-08T15:16:49.855826100",
+            "updatedAt": "2026-06-08T15:22:00.852749",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxODYyLCJleHAiOjE3ODEwMTgyNjJ9.mZZ0KbOuFrhTf3aIkq3NTDWhp8c5J1fRkzX3RWlRtPc"
+            },
+            "authenticationType": "bearer",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "POST",
+            "name": "Logout",
+            "sortPriority": -1780931612862.998,
+            "url": "${[ BaseURL ]}/auth/logout",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_Jo5DUikjzf",
+            "createdAt": "2026-06-08T15:16:11.728906900",
+            "updatedAt": "2026-06-08T15:21:51.909068600",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {
+               "text": "{\n  \"username\": \"anhjkr\",\n  \"password\": \"Anhhung1@\"\n}"
+            },
+            "bodyType": "application/json",
+            "description": "",
+            "headers": [
+               {
+                  "enabled": true,
+                  "name": "Content-Type",
+                  "value": "application/json",
+                  "id": "wq4NfJXsyR"
+               }
+            ],
+            "method": "POST",
+            "name": "Login",
+            "sortPriority": -1780931612862.999,
+            "url": "${[ BaseURL ]}/auth/login",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_yDTGMJzJQj",
+            "createdAt": "2026-06-08T15:13:32.866158",
+            "updatedAt": "2026-06-08T15:21:49.410753400",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {
+               "text": "{\n  \"username\": \"anhjkr\",\n  \"fullname\": \"Nguyễn Quang Hưng\",\n  \"password\": \"Anhhung1@\",\n  \"confirmpassword\": \"Anhhung1@\"\n}"
+            },
+            "bodyType": "application/json",
+            "description": "",
+            "headers": [
+               {
+                  "enabled": true,
+                  "name": "Content-Type",
+                  "value": "application/json",
+                  "id": "zbewYrdMWp"
+               }
+            ],
+            "method": "POST",
+            "name": "Register",
+            "sortPriority": -1780931612863.0,
+            "url": "${[ BaseURL ]}/auth/register",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_a0d6fda90a",
+            "createdAt": "2026-06-08T15:38:56.070458Z",
+            "updatedAt": "2026-06-08T15:38:56.070458Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Google Login Redirect",
+            "url": "${[ BaseURL ]}/auth/google/login",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_8cc4052fc2",
+            "createdAt": "2026-06-08T15:38:56.070531Z",
+            "updatedAt": "2026-06-08T15:38:56.070531Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Google Callback",
+            "url": "${[ BaseURL ]}/auth/google/callback",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_023b13d938",
+            "createdAt": "2026-06-08T15:38:56.070551Z",
+            "updatedAt": "2026-06-08T15:38:56.070551Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "GitHub Login Redirect",
+            "url": "${[ BaseURL ]}/auth/github/login",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_345327a90b",
+            "createdAt": "2026-06-08T15:38:56.070561Z",
+            "updatedAt": "2026-06-08T15:38:56.070561Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_tghsnTEyV7",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "GitHub Callback",
+            "url": "${[ BaseURL ]}/auth/github/callback",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_b1638e0757",
+            "createdAt": "2026-06-08T15:38:56.070572Z",
+            "updatedAt": "2026-06-08T15:38:56.070572Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_KGCS9w7Zbs",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {
+               "form": [
+                  {
+                     "name": "name",
+                     "value": "Updated Laptop Name",
+                     "enabled": true,
+                     "id": "fv_85515c7b"
+                  },
+                  {
+                     "name": "description",
+                     "value": "Updated description.",
+                     "enabled": true,
+                     "id": "fv_378dfe39"
+                  },
+                  {
+                     "name": "price",
+                     "value": "1599.00",
+                     "enabled": true,
+                     "id": "fv_b4673662"
+                  },
+                  {
+                     "name": "category_id",
+                     "value": "1",
+                     "enabled": true,
+                     "id": "fv_0d2d37ac"
+                  }
+               ]
+            },
+            "bodyType": "multipart/form-data",
+            "description": "",
+            "headers": [
+               {
+                  "name": "Content-Type",
+                  "value": "multipart/form-data",
+                  "enabled": true,
+                  "id": "h_c35ff2b2"
+               }
+            ],
+            "method": "POST",
+            "name": "Edit Product",
+            "url": "${[ BaseURL ]}/products/1",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_2c1c0276f2",
+            "createdAt": "2026-06-08T15:38:56.070610Z",
+            "updatedAt": "2026-06-08T15:38:56.070610Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_KGCS9w7Zbs",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "DELETE",
+            "name": "Delete Product",
+            "url": "${[ BaseURL ]}/products/1",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_a34649dccb",
+            "createdAt": "2026-06-08T15:38:56.070620Z",
+            "updatedAt": "2026-06-08T15:38:56.070620Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_CartFolder",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [
+               {
+                  "name": "X-Guest-Id",
+                  "value": "guest_12345",
+                  "enabled": true,
+                  "id": "h_4ad465b6"
+               }
+            ],
+            "method": "GET",
+            "name": "Get Cart Items",
+            "url": "${[ BaseURL ]}/cart",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_8ed723fee0",
+            "createdAt": "2026-06-08T15:38:56.070629Z",
+            "updatedAt": "2026-06-08T15:38:56.070629Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_CartFolder",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [
+               {
+                  "name": "X-Guest-Id",
+                  "value": "guest_12345",
+                  "enabled": true,
+                  "id": "h_c587c00d"
+               }
+            ],
+            "method": "POST",
+            "name": "Add Product to Cart",
+            "url": "${[ BaseURL ]}/cart/add/1",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_0a98932466",
+            "createdAt": "2026-06-08T15:38:56.070638Z",
+            "updatedAt": "2026-06-08T15:38:56.070638Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_CartFolder",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {
+               "text": "{\n  \"cart_items\": {\n    \"1\": 3\n  }\n}"
+            },
+            "bodyType": "application/json",
+            "description": "",
+            "headers": [
+               {
+                  "name": "Content-Type",
+                  "value": "application/json",
+                  "enabled": true,
+                  "id": "h_bd8ca127"
+               }
+            ],
+            "method": "PUT",
+            "name": "Update Quantities",
+            "url": "${[ BaseURL ]}/cart/update",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_d126466615",
+            "createdAt": "2026-06-08T15:38:56.070676Z",
+            "updatedAt": "2026-06-08T15:38:56.070676Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_CartFolder",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [
+               {
+                  "name": "X-Guest-Id",
+                  "value": "guest_12345",
+                  "enabled": true,
+                  "id": "h_2991d3b7"
+               }
+            ],
+            "method": "POST",
+            "name": "Remove Product from Cart",
+            "url": "${[ BaseURL ]}/cart/remove/1",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_3cbeaf1483",
+            "createdAt": "2026-06-08T15:38:56.070698Z",
+            "updatedAt": "2026-06-08T15:38:56.070698Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_OrdrFolder",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {
+               "form": [
+                  {
+                     "name": "name",
+                     "value": "Nguyen Van A",
+                     "enabled": true,
+                     "id": "fv_aff3d6cc"
+                  },
+                  {
+                     "name": "phone",
+                     "value": "0987654321",
+                     "enabled": true,
+                     "id": "fv_027837ca"
+                  },
+                  {
+                     "name": "address",
+                     "value": "123 Lang Ha, Dong Da, Ha Noi",
+                     "enabled": true,
+                     "id": "fv_8e2b45c4"
+                  },
+                  {
+                     "name": "payment_method",
+                     "value": "vnpay",
+                     "enabled": true,
+                     "id": "fv_9506e8d0"
+                  }
+               ]
+            },
+            "bodyType": "application/x-www-form-urlencoded",
+            "description": "",
+            "headers": [],
+            "method": "POST",
+            "name": "Place Order",
+            "url": "${[ BaseURL ]}/orders",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_cf6006ef87",
+            "createdAt": "2026-06-08T15:38:56.070717Z",
+            "updatedAt": "2026-06-08T15:38:56.070717Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_OrdrFolder",
+            "authentication": {
+               "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuaGprciIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwOTMxOTI0LCJleHAiOjE3ODEwMTgzMjR9.BPwqDEK_FD5d_EsWVD1KUbVgFf-H-IUWSRfyFDWJlb8"
+            },
+            "authenticationType": "bearer",
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "Get Order History",
+            "url": "${[ BaseURL ]}/orders",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         },
+         {
+            "model": "http_request",
+            "id": "rq_6272e11a34",
+            "createdAt": "2026-06-08T15:38:56.070724Z",
+            "updatedAt": "2026-06-08T15:38:56.070724Z",
+            "workspaceId": "wk_W7DAzkTvwY",
+            "folderId": "fl_OrdrFolder",
+            "authentication": {},
+            "authenticationType": null,
+            "body": {},
+            "bodyType": null,
+            "description": "",
+            "headers": [],
+            "method": "GET",
+            "name": "VNPay Return Callback",
+            "url": "${[ BaseURL ]}/orders/vnpay-return",
+            "urlParameters": [],
+            "settingSendCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingStoreCookies": {
+               "enabled": false,
+               "value": true
+            },
+            "settingValidateCertificates": {
+               "enabled": false,
+               "value": true
+            },
+            "settingFollowRedirects": {
+               "enabled": false,
+               "value": true
+            },
+            "settingRequestTimeout": {
+               "enabled": false,
+               "value": 0
+            }
+         }
+      ],
+      "grpcRequests": [],
+      "websocketRequests": []
+   }
+}
