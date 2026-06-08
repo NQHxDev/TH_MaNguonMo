@@ -118,18 +118,9 @@ class ProductController {
          $errors[] = "Giá sản phẩm phải lớn hơn 0";
       }
 
-      $mainImagePath = null;
-      if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-         $mainImagePath = $this->handleFileUpload($_FILES['image']);
-         if (!$mainImagePath) {
-            $errors[] = "Lỗi tải ảnh chính (vui lòng chọn ảnh < 5MB và định dạng JPG/PNG/WEBP/GIF).";
-         }
-      }
-
-      $subImagePaths = [];
-      if (isset($_FILES['sub_images']) && !empty($_FILES['sub_images']['name'][0])) {
-         $subImagePaths = $this->handleMultipleUploads($_FILES['sub_images']);
-      }
+      $images = $this->parseOrderedImages($errors);
+      $mainImagePath = $images[0] ?? null;
+      $subImagePaths = array_slice($images, 1);
 
       if (!empty($errors)) {
          http_response_code(400);
@@ -219,28 +210,7 @@ class ProductController {
       $product->setPrice((float)$price);
       $product->setCategoryID($category_id ? (int)$category_id : null);
 
-      if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-         $newMainImage = $this->handleFileUpload($_FILES['image']);
-         if ($newMainImage) {
-            $oldImage = $product->getImage();
-            if ($oldImage) {
-               $localOldImage = ltrim($oldImage, '/');
-               if (file_exists($localOldImage)) {
-                  @unlink($localOldImage);
-               }
-            }
-            $product->setImage($newMainImage);
-         } else {
-            $errors[] = "Lỗi khi tải lên ảnh chính mới.";
-         }
-      }
-
-      if (isset($_FILES['sub_images']) && !empty($_FILES['sub_images']['name'][0])) {
-         $newSubImages = $this->handleMultipleUploads($_FILES['sub_images']);
-         if (!empty($newSubImages)) {
-            $product->setSubImages($newSubImages);
-         }
-      }
+      $images = $this->parseOrderedImages($errors);
 
       if (!empty($errors)) {
          http_response_code(400);
@@ -250,6 +220,30 @@ class ProductController {
          ], JSON_UNESCAPED_UNICODE);
          exit();
       }
+
+      // Collect all old image paths
+      $oldImages = [];
+      if ($product->getImage()) {
+         $oldImages[] = $product->getImage();
+      }
+      if (!empty($product->getSubImages())) {
+         $oldImages = array_merge($oldImages, $product->getSubImages());
+      }
+
+      // Compare and unlink any old images that were removed in the edit
+      $deletedImages = array_diff($oldImages, $images);
+      foreach ($deletedImages as $delImg) {
+         $localImg = ltrim($delImg, '/');
+         if (file_exists($localImg)) {
+            @unlink($localImg);
+         }
+      }
+
+      $mainImagePath = $images[0] ?? null;
+      $subImagePaths = array_slice($images, 1);
+
+      $product->setImage($mainImagePath);
+      $product->setSubImages($subImagePaths);
 
       if ($product->update($this->db)) {
          echo json_encode([
@@ -286,6 +280,51 @@ class ProductController {
          ], JSON_UNESCAPED_UNICODE);
       }
       exit();
+   }
+
+   private function parseOrderedImages(array &$errors): array {
+      $images = [];
+      $maxIndex = -1;
+      if (isset($_POST['images']) && is_array($_POST['images'])) {
+         foreach (array_keys($_POST['images']) as $idx) {
+            if (is_numeric($idx) && (int)$idx > $maxIndex) {
+               $maxIndex = (int)$idx;
+            }
+         }
+      }
+      if (isset($_FILES['images']['name']) && is_array($_FILES['images']['name'])) {
+         foreach (array_keys($_FILES['images']['name']) as $idx) {
+            if (is_numeric($idx) && (int)$idx > $maxIndex) {
+               $maxIndex = (int)$idx;
+            }
+         }
+      }
+
+      for ($i = 0; $i <= $maxIndex; $i++) {
+         if (isset($_POST['images'][$i]) && is_string($_POST['images'][$i])) {
+            $images[] = $_POST['images'][$i];
+         } elseif (isset($_FILES['images']['name'][$i])) {
+            $singleFile = [
+               'name'     => $_FILES['images']['name'][$i],
+               'type'     => $_FILES['images']['type'][$i],
+               'tmp_name' => $_FILES['images']['tmp_name'][$i],
+               'error'    => $_FILES['images']['error'][$i],
+               'size'     => $_FILES['images']['size'][$i]
+            ];
+            $uploadedPath = $this->handleFileUpload($singleFile);
+            if ($uploadedPath) {
+               $images[] = $uploadedPath;
+            } else {
+               $errors[] = "Lỗi khi tải lên hình ảnh vị trí số " . ($i + 1) . " (chọn ảnh < 5MB và định dạng JPG/PNG/WEBP/GIF).";
+            }
+         }
+      }
+
+      if (empty($images) && empty($errors)) {
+         $errors[] = "Sản phẩm phải có ít nhất một hình ảnh";
+      }
+
+      return $images;
    }
 
    private function handleFileUpload(array $file): ?string {

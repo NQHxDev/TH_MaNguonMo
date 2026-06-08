@@ -35,20 +35,21 @@ $segments = explode('/', $url);
 // Kiểm tra xem có phải yêu cầu API hay không
 $isApi = false;
 if (isset($segments[0]) && $segments[0] === 'api') {
-    $isApi = true;
-    array_shift($segments);
+   $isApi = true;
+   array_shift($segments);
 }
 
-// Nếu không phải API, phục vụ trực tiếp file giao diện index.html của SPA dưới dạng HTML
 if (!$isApi) {
-    header("Content-Type: text/html; charset=UTF-8");
-    if (file_exists('index.html')) {
-        include 'index.html';
-    } else {
-        http_response_code(404);
-        echo "Giao diện index.html không tồn tại!";
-    }
-    exit();
+   header("Content-Type: text/html; charset=UTF-8");
+   if (file_exists('App/Views/layout.php')) {
+      include 'App/Views/layout.php';
+   } elseif (file_exists('index.html')) {
+      include 'index.html';
+   } else {
+      http_response_code(404);
+      echo "Giao diện layout.php không tồn tại!";
+   }
+   exit();
 }
 
 // Thiết lập định dạng JSON cho phản hồi API

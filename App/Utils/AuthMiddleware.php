@@ -34,6 +34,10 @@ class AuthMiddleware {
          return TokenHelper::verifyToken($token);
       }
 
+      if (isset($_COOKIE['token'])) {
+         return TokenHelper::verifyToken($_COOKIE['token']);
+      }
+
       return null;
    }
 

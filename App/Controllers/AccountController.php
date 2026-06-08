@@ -100,8 +100,14 @@ class AccountController {
       }
 
       if (password_verify($password, $account->password)) {
-         // Sinh Token
          $token = TokenHelper::generateToken($account->username, $account->role);
+
+         setcookie('token', $token, [
+            'expires' => time() + 86400,
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax'
+         ]);
 
          echo json_encode([
                'success' => true,
@@ -128,6 +134,11 @@ class AccountController {
     * POST /api/auth/logout
     */
    public function logout() {
+      setcookie('token', '', [
+         'expires' => time() - 3600,
+         'path' => '/'
+      ]);
+
       $authHeader = null;
       if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
          $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
@@ -211,6 +222,12 @@ class AccountController {
                $currentUser = AuthMiddleware::getUserFromHeaders();
                if ($currentUser && $currentUser['username'] === $username) {
                   $newToken = TokenHelper::generateToken($username, $role);
+                  setcookie('token', $newToken, [
+                     'expires' => time() + 86400,
+                     'path' => '/',
+                     'httponly' => true,
+                     'samesite' => 'Lax'
+                  ]);
                   
                   // Xóa token cũ khỏi Redis
                   $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
@@ -532,6 +549,13 @@ class AccountController {
    }
 
    private function redirectSuccess(string $token) {
+      setcookie('token', $token, [
+         'expires' => time() + 86400,
+         'path' => '/',
+         'httponly' => true,
+         'samesite' => 'Lax'
+      ]);
+
       $redirectUrl = AppConfig::$frontendUrl . '/oauth-success?token=' . urlencode($token);
       header("Location: " . $redirectUrl);
       exit();
@@ -653,8 +677,13 @@ class AccountController {
 
       $result = $this->accountModel->updateProfile($account->id, $fullname);
       if ($result) {
-         // Sinh token mới với thông tin cập nhật
          $newToken = TokenHelper::generateToken($account->username, $account->role);
+         setcookie('token', $newToken, [
+            'expires' => time() + 86400,
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax'
+         ]);
          echo json_encode([
             'success' => true, 
             'message' => 'Cập nhật thông tin thành công!',

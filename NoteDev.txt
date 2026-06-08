@@ -94,3 +94,5 @@ Số thẻ:        9704310005819191
 Tên chủ thẻ:   NGUYEN VAN A
 Ngày hết hạn:  10/26
 Trạng thái:    Thành công
+
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/NQHxDev/TH_MaNguonMo.git

@@ -275,7 +275,12 @@ class CartController {
          ], JSON_UNESCAPED_UNICODE);
          exit();
       } else if ($payment_method === 'cod') {
-         // Xử lý đơn hàng COD
+         http_response_code(400);
+         echo json_encode([
+            'success' => false,
+            'message' => "Phương thức thanh toán COD hiện đang tạm khóa!"
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
          try {
             $this->db->beginTransaction();
 
@@ -447,7 +452,7 @@ class CartController {
          }
 
          // Redirect về Frontend kèm trạng thái thành công
-         $redirectUrl = AppConfig::$frontendUrl . '/payment-result?success=true&txnRef=' . urlencode($txnRef) . '&amount=' . urlencode($_GET['vnp_Amount'] ?? 0);
+         $redirectUrl = AppConfig::$frontendUrl . '/payment-result?success=true&txnRef=' . urlencode($txnRef) . '&amount=' . urlencode($_GET['vnp_Amount'] ?? 0) . '&bankCode=' . urlencode($_GET['vnp_BankCode'] ?? '');
          header("Location: " . $redirectUrl);
          exit();
       } else {
