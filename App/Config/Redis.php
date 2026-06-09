@@ -105,6 +105,42 @@ class RedisClient {
         return $this->execute(['DEL', $key]);
     }
 
+    /**
+     * Kiểm tra key có tồn tại trong Redis không.
+     */
+    public function exists(string $key): bool {
+        return (bool)$this->execute(['EXISTS', $key]);
+    }
+
+    /**
+     * Đặt thời gian sống (TTL) cho key.
+     */
+    public function expire(string $key, int $seconds) {
+        return $this->execute(['EXPIRE', $key, (string)$seconds]);
+    }
+
+    /**
+     * Thêm một hoặc nhiều member vào SET.
+     */
+    public function sadd(string $key, string ...$members) {
+        return $this->execute(array_merge(['SADD', $key], $members));
+    }
+
+    /**
+     * Xóa một hoặc nhiều member khỏi SET.
+     */
+    public function srem(string $key, string ...$members) {
+        return $this->execute(array_merge(['SREM', $key], $members));
+    }
+
+    /**
+     * Lấy tất cả members trong SET.
+     */
+    public function smembers(string $key): array {
+        $result = $this->execute(['SMEMBERS', $key]);
+        return is_array($result) ? $result : [];
+    }
+
     public function __destruct() {
         if ($this->socket !== null) {
             fclose($this->socket);

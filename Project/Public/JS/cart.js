@@ -1,5 +1,5 @@
 function toggleCartDrawer() {
-   if (!state.token) {
+   if (!state.user) {
       showToast('Vui lòng đăng nhập để xem giỏ hàng!', 'error');
       return;
    }
@@ -13,12 +13,12 @@ function closeCartDrawer() {
 }
 
 async function loadCartCount() {
-   if (!state.token) {
+   if (!state.user) {
       document.getElementById('cart-count-badge').textContent = '0';
       return;
    }
 
-   const res = await fetchApi('/api/cart', 'GET', null, true);
+   const res = await fetchApi('/api/cart');
    if (res && res.success) {
       state.cart = res.cart;
       document.getElementById('cart-count-badge').textContent = Object.keys(state.cart).length;
@@ -26,7 +26,7 @@ async function loadCartCount() {
 }
 
 async function loadCartItems() {
-   const res = await fetchApi('/api/cart', 'GET', null, true);
+   const res = await fetchApi('/api/cart');
    if (res && res.success) {
       state.cart = res.cart;
       updateCartUI();
@@ -90,7 +90,7 @@ function updateCartUI() {
 }
 
 async function addToCart(productId) {
-   const res = await fetchApi(`/api/cart/add`, 'POST', { product_id: productId }, !!state.token);
+   const res = await fetchApi(`/api/cart/add`, 'POST', { product_id: productId });
    if (res && res.success) {
       showToast(res.message, 'success');
       loadCartCount();
@@ -107,7 +107,7 @@ async function updateQuantity(productId, qty) {
    const quantities = {};
    quantities[productId] = qty;
 
-   const res = await fetchApi(`/api/cart/update`, 'PUT', { cart_items: quantities }, !!state.token);
+   const res = await fetchApi(`/api/cart/update`, 'PUT', { cart_items: quantities });
    if (res && res.success) {
       state.cart = res.cart;
       updateCartUI();
@@ -115,7 +115,7 @@ async function updateQuantity(productId, qty) {
 }
 
 async function removeFromCart(productId) {
-   const res = await fetchApi(`/api/cart/remove`, 'POST', { product_id: productId }, !!state.token);
+   const res = await fetchApi(`/api/cart/remove`, 'POST', { product_id: productId });
    if (res && res.success) {
       showToast(res.message, 'success');
       loadCartItems();
@@ -236,7 +236,7 @@ async function removeCartPageItem(id) {
 }
 
 function loadCheckoutPage() {
-   if (!state.token) {
+   if (!state.user) {
       showToast('Vui lòng đăng nhập để đặt hàng!', 'error');
       navigateTo('login');
       return;
@@ -288,7 +288,7 @@ async function handleCheckoutSubmit(e) {
 
    const body = { name, phone, address, payment_method };
 
-   const res = await fetchApi('/api/orders', 'POST', body, true);
+   const res = await fetchApi('/api/orders', 'POST', body);
    if (res && res.success) {
       if (res.paymentUrl) {
          showToast('Đang kết nối cổng VNPay...');
@@ -306,13 +306,13 @@ async function handleCheckoutSubmit(e) {
 }
 
 async function loadOrdersPage() {
-   if (!state.token) {
+   if (!state.user) {
       showToast('Vui lòng đăng nhập để xem đơn hàng!', 'error');
       navigateTo('login');
       return;
    }
 
-   const res = await fetchApi('/api/orders', 'GET', null, true);
+   const res = await fetchApi('/api/orders');
    const container = document.getElementById('orders-list');
    if (!container) return;
 

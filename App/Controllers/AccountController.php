@@ -100,19 +100,16 @@ class AccountController {
       }
 
       if (password_verify($password, $account->password)) {
-         $token = TokenHelper::generateToken($account->username, $account->role);
+         // Tạo cặp Access + Refresh token
+         $accessToken  = TokenHelper::generateAccessToken($account->username, $account->role);
+         $refreshToken = TokenHelper::generateRefreshToken($account->username, $account->role);
 
-         setcookie('token', $token, [
-            'expires' => time() + 86400,
-            'path' => '/',
-            'httponly' => true,
-            'samesite' => 'Lax'
-         ]);
+         // Set HttpOnly cookies — browser tự gửi mỗi request
+         TokenHelper::setTokenCookies($accessToken, $refreshToken);
 
          echo json_encode([
                'success' => true,
                'message' => "Đăng nhập thành công!",
-               'token' => $token,
                'user' => [
                   'username' => $account->username,
                   'fullname' => $account->fullname,
@@ -134,15 +131,23 @@ class AccountController {
     * POST /api/auth/logout
     */
    public function logout() {
-      setcookie('token', '', [
-         'expires' => time() - 3600,
-         'path' => '/'
-      ]);
+      // Đọc tokens từ cookies (browser tự gửi)
+      $accessToken  = $_COOKIE['access_token'] ?? '';
+      $refreshToken = $_COOKIE['refresh_token'] ?? '';
 
-      $authHeader = null;
-      if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-         $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-      } elseif (function_exists('getallheaders')) {
+      // Revoke access token (thêm vào blacklist)
+      if (!empty($accessToken)) {
+         TokenHelper::revokeAccessToken($accessToken);
+      }
+
+      // Revoke refresh token (xóa khỏi whitelist)
+      if (!empty($refreshToken)) {
+         TokenHelper::revokeRefreshToken($refreshToken);
+      }
+
+      // Fallback: đọc từ Authorization header (cho API client)
+      $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+      if (empty($authHeader) && function_exists('getallheaders')) {
          $headers = getallheaders();
          foreach ($headers as $key => $value) {
                if (strcasecmp($key, 'Authorization') === 0) {
@@ -151,14 +156,84 @@ class AccountController {
                }
          }
       }
-
       if ($authHeader && preg_match('/Bearer\s(\S+)/i', $authHeader, $matches)) {
-         TokenHelper::deleteToken($matches[1]);
+         TokenHelper::revokeAccessToken($matches[1]);
       }
+
+      // Xóa cookies
+      TokenHelper::clearTokenCookies();
 
       echo json_encode([
          'success' => true,
          'message' => "Đăng xuất thành công!"
+      ], JSON_UNESCAPED_UNICODE);
+      exit();
+   }
+
+   /**
+    * POST /api/auth/refresh
+    * 
+    * Refresh Token Rotation:
+    * 1. Đọc refresh_token từ HttpOnly cookie (browser tự gửi)
+    * 2. Verify signature + exp + Redis whitelist
+    * 3. Xóa refresh token cũ (chống replay attack)
+    * 4. Tạo cặp token mới
+    * 5. Set cookies mới
+    */
+   public function refresh() {
+      $refreshToken = $_COOKIE['refresh_token'] ?? '';
+
+      if (empty($refreshToken)) {
+         http_response_code(401);
+         echo json_encode([
+            'success' => false,
+            'message' => 'Không tìm thấy refresh token.'
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+
+      // Verify refresh token (signature + exp + Redis whitelist)
+      $payload = TokenHelper::verifyRefreshToken($refreshToken);
+
+      if (!$payload) {
+         // Token không hợp lệ hoặc đã bị revoke → xóa cookie
+         TokenHelper::clearTokenCookies();
+         http_response_code(401);
+         echo json_encode([
+            'success' => false,
+            'message' => 'Refresh token không hợp lệ hoặc đã hết hạn.'
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+
+      $username = $payload['username'];
+      $role = $payload['role'];
+
+      // Lấy role mới nhất từ DB (phòng trường hợp admin đã đổi role)
+      $account = $this->accountModel->getAccountByUsername($username);
+      if (!$account) {
+         TokenHelper::clearTokenCookies();
+         http_response_code(401);
+         echo json_encode([
+            'success' => false,
+            'message' => 'Tài khoản không tồn tại.'
+         ], JSON_UNESCAPED_UNICODE);
+         exit();
+      }
+
+      // Revoke refresh token cũ (rotation)
+      TokenHelper::revokeRefreshToken($refreshToken);
+
+      // Tạo cặp token mới với role mới nhất từ DB
+      $newAccessToken  = TokenHelper::generateAccessToken($account->username, $account->role);
+      $newRefreshToken = TokenHelper::generateRefreshToken($account->username, $account->role);
+
+      // Set cookies mới
+      TokenHelper::setTokenCookies($newAccessToken, $newRefreshToken);
+
+      echo json_encode([
+         'success' => true,
+         'message' => 'Token đã được làm mới.'
       ], JSON_UNESCAPED_UNICODE);
       exit();
    }
@@ -218,33 +293,19 @@ class AccountController {
                   'message' => "Cập nhật vai trò cho tài khoản " . $username . " thành công!"
                ];
 
-               // Nếu tự thay đổi quyền của bản thân, sinh token mới và trả về
+               // Nếu tự thay đổi quyền của bản thân, tạo cặp token mới
                $currentUser = AuthMiddleware::getUserFromHeaders();
                if ($currentUser && $currentUser['username'] === $username) {
-                  $newToken = TokenHelper::generateToken($username, $role);
-                  setcookie('token', $newToken, [
-                     'expires' => time() + 86400,
-                     'path' => '/',
-                     'httponly' => true,
-                     'samesite' => 'Lax'
-                  ]);
-                  
-                  // Xóa token cũ khỏi Redis
-                  $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-                  if (empty($authHeader) && function_exists('getallheaders')) {
-                     $headers = getallheaders();
-                     foreach ($headers as $key => $value) {
-                           if (strcasecmp($key, 'Authorization') === 0) {
-                              $authHeader = $value;
-                              break;
-                           }
-                     }
-                  }
-                  if (preg_match('/Bearer\s(\S+)/i', $authHeader, $matches)) {
-                     TokenHelper::deleteToken($matches[1]);
-                  }
-                  
-                  $response['token'] = $newToken;
+                  // Revoke tokens cũ
+                  $oldAccessToken  = $_COOKIE['access_token'] ?? '';
+                  $oldRefreshToken = $_COOKIE['refresh_token'] ?? '';
+                  if (!empty($oldAccessToken))  TokenHelper::revokeAccessToken($oldAccessToken);
+                  if (!empty($oldRefreshToken)) TokenHelper::revokeRefreshToken($oldRefreshToken);
+
+                  // Tạo cặp token mới với role mới
+                  $newAccessToken  = TokenHelper::generateAccessToken($username, $role);
+                  $newRefreshToken = TokenHelper::generateRefreshToken($username, $role);
+                  TokenHelper::setTokenCookies($newAccessToken, $newRefreshToken);
                }
 
                echo json_encode($response, JSON_UNESCAPED_UNICODE);
@@ -394,8 +455,7 @@ class AccountController {
       }
 
       if ($account) {
-         $token = TokenHelper::generateToken($account->username, $account->role);
-         $this->redirectSuccess($token);
+         $this->redirectSuccess($account->username, $account->role);
       } else {
          $this->redirectFailure("Đăng nhập liên kết Google thất bại.");
       }
@@ -541,22 +601,22 @@ class AccountController {
       }
 
       if ($account) {
-         $token = TokenHelper::generateToken($account->username, $account->role);
-         $this->redirectSuccess($token);
+         $this->redirectSuccess($account->username, $account->role);
       } else {
          $this->redirectFailure("Đăng nhập liên kết GitHub thất bại.");
       }
    }
 
-   private function redirectSuccess(string $token) {
-      setcookie('token', $token, [
-         'expires' => time() + 86400,
-         'path' => '/',
-         'httponly' => true,
-         'samesite' => 'Lax'
-      ]);
+   /**
+    * Redirect sau OAuth thành công — Set cookies rồi redirect, KHÔNG truyền token qua URL.
+    */
+   private function redirectSuccess(string $username, string $role) {
+      $accessToken  = TokenHelper::generateAccessToken($username, $role);
+      $refreshToken = TokenHelper::generateRefreshToken($username, $role);
+      TokenHelper::setTokenCookies($accessToken, $refreshToken);
 
-      $redirectUrl = AppConfig::$frontendUrl . '/oauth-success?token=' . urlencode($token);
+      // Redirect về frontend KHÔNG kèm token trong URL
+      $redirectUrl = AppConfig::$frontendUrl . '/oauth-success';
       header("Location: " . $redirectUrl);
       exit();
    }
@@ -677,17 +737,19 @@ class AccountController {
 
       $result = $this->accountModel->updateProfile($account->id, $fullname);
       if ($result) {
-         $newToken = TokenHelper::generateToken($account->username, $account->role);
-         setcookie('token', $newToken, [
-            'expires' => time() + 86400,
-            'path' => '/',
-            'httponly' => true,
-            'samesite' => 'Lax'
-         ]);
+         // Revoke tokens cũ và tạo cặp mới
+         $oldAccessToken  = $_COOKIE['access_token'] ?? '';
+         $oldRefreshToken = $_COOKIE['refresh_token'] ?? '';
+         if (!empty($oldAccessToken))  TokenHelper::revokeAccessToken($oldAccessToken);
+         if (!empty($oldRefreshToken)) TokenHelper::revokeRefreshToken($oldRefreshToken);
+
+         $newAccessToken  = TokenHelper::generateAccessToken($account->username, $account->role);
+         $newRefreshToken = TokenHelper::generateRefreshToken($account->username, $account->role);
+         TokenHelper::setTokenCookies($newAccessToken, $newRefreshToken);
+
          echo json_encode([
             'success' => true, 
-            'message' => 'Cập nhật thông tin thành công!',
-            'token' => $newToken
+            'message' => 'Cập nhật thông tin thành công!'
          ], JSON_UNESCAPED_UNICODE);
       } else {
          http_response_code(500);

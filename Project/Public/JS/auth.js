@@ -5,9 +5,8 @@ async function handleLoginSubmit(e) {
 
    const res = await fetchApi('/api/auth/login', 'POST', { username, password });
    if (res && res.success) {
-      state.token = res.token;
       state.user = res.user;
-      localStorage.setItem('token', res.token);
+      // Cookies (access_token + refresh_token) đã được server set tự động
       showToast('Đăng nhập thành công!', 'success');
       e.target.reset();
 
@@ -43,22 +42,21 @@ async function handleRegisterSubmit(e) {
 }
 
 async function logout() {
-   await fetchApi('/api/auth/logout', 'POST', null, true);
+   await fetchApi('/api/auth/logout', 'POST');
    logoutLocal();
    window.location.reload();
 }
 
 function logoutLocal() {
    state.user = null;
-   state.token = null;
-   localStorage.removeItem('token');
+   // Cookies sẽ bị xóa bởi server khi gọi logout API
    updateNavbar();
    navigateTo('home');
 }
 
 async function syncCartAfterLogin() {
    try {
-      const guestCartRes = await fetchApi('/api/cart', 'GET');
+      const guestCartRes = await fetchApi('/api/cart');
       if (guestCartRes && guestCartRes.success && Object.keys(guestCartRes.cart).length > 0) {
          const cartItems = guestCartRes.cart;
          const quantities = {};
@@ -66,7 +64,7 @@ async function syncCartAfterLogin() {
             quantities[id] = cartItems[id].quantity;
          }
 
-         await fetchApi('/api/cart/update', 'PUT', { cart_items: quantities }, true);
+         await fetchApi('/api/cart/update', 'PUT', { cart_items: quantities });
          state.guestId = getOrCreateGuestId();
       }
    } catch (e) {
@@ -94,13 +92,13 @@ function togglePassword(btn) {
 // PROFILE PAGE
 // ==========================================
 async function loadProfilePage() {
-   if (!state.token) {
+   if (!state.user) {
       showToast('Vui lòng đăng nhập để xem thông tin tài khoản!', 'error');
       navigateTo('login');
       return;
    }
 
-   const res = await fetchApi('/api/account/profile', 'GET', null, true);
+   const res = await fetchApi('/api/account/profile');
    if (!res || !res.success) {
       showToast('Không thể tải thông tin tài khoản!', 'error');
       return;
@@ -200,7 +198,7 @@ async function handleSetPassword(e) {
       confirm_password: confirmPassword,
    };
 
-   const res = await fetchApi('/api/account/password', 'PUT', body, true);
+   const res = await fetchApi('/api/account/password', 'PUT', body);
    if (res && res.success) {
       showToast(res.message, 'success');
       e.target.reset();
@@ -220,15 +218,10 @@ async function handleUpdateProfile(e) {
       return;
    }
 
-   const res = await fetchApi('/api/account/update', 'PUT', { fullname }, true);
+   const res = await fetchApi('/api/account/update', 'PUT', { fullname });
    if (res && res.success) {
       showToast(res.message, 'success');
-      // Update token if returned
-      if (res.token) {
-         state.token = res.token;
-         localStorage.setItem('token', res.token);
-      }
-      // Reload user info
+      // Token mới đã được server set qua cookie tự động
       await checkAuth();
       loadProfilePage();
    } else {

@@ -14,7 +14,7 @@ function switchAdminTab(tab, btnEl) {
 }
 
 async function loadAdminPage() {
-   if (!state.token || !state.user || state.user.role !== 'admin') {
+   if (!state.user || state.user.role !== 'admin') {
       showToast('Bạn không có quyền truy cập trang quản trị!', 'error');
       navigateTo('home');
       return;
@@ -75,7 +75,7 @@ async function loadAdminProducts() {
 }
 
 async function loadAdminUsers() {
-   const res = await fetchApi('/api/admin/accounts', 'GET', null, true);
+   const res = await fetchApi('/api/admin/accounts', 'GET');
    const tbody = document.getElementById('admin-users-tbody');
    if (!tbody) return;
    tbody.innerHTML = '';
@@ -107,16 +107,12 @@ async function loadAdminUsers() {
 }
 
 async function updateUserRole(username, role) {
-   const res = await fetchApi('/api/admin/accounts/role', 'PUT', { username, role }, true);
+   const res = await fetchApi('/api/admin/accounts/role', 'PUT', { username, role });
    if (res && res.success) {
       showToast(res.message, 'success');
 
-      // Nếu có token mới (do tự thay đổi vai trò của bản thân)
-      if (res.token) {
-         state.token = res.token;
-         localStorage.setItem('token', res.token);
-         await checkAuth(); // Tải lại thông tin user mới và cập nhật navbar
-      }
+      // Token mới đã được server set qua cookie tự động (nếu tự đổi role bản thân)
+      await checkAuth();
 
       if (state.activePage === 'admin' && state.activeAdminTab === 'users') {
          loadAdminUsers();
@@ -296,9 +292,9 @@ document.getElementById('form-admin-product').addEventListener('submit', async (
 
    let res;
    if (state.editingProductId) {
-      res = await fetchApi(`/api/products/${state.editingProductId}`, 'POST', formData, true);
+      res = await fetchApi(`/api/products/${state.editingProductId}`, 'POST', formData);
    } else {
-      res = await fetchApi('/api/products', 'POST', formData, true);
+      res = await fetchApi('/api/products', 'POST', formData);
    }
 
    if (res && res.success) {
@@ -313,7 +309,7 @@ document.getElementById('form-admin-product').addEventListener('submit', async (
 
 async function deleteProduct(id) {
    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) {
-      const res = await fetchApi(`/api/products/${id}`, 'DELETE', null, true);
+      const res = await fetchApi(`/api/products/${id}`, 'DELETE');
       if (res && res.success) {
          showToast(res.message, 'success');
          loadAdminProducts();
@@ -331,7 +327,7 @@ async function loadRoleManagerPage() {
 }
 
 async function loadRoleManagerUsers() {
-   const res = await fetchApi('/api/admin/accounts', 'GET', null, true);
+   const res = await fetchApi('/api/admin/accounts', 'GET');
    const tbody = document.getElementById('manager-role-tbody');
    if (!tbody) return;
    tbody.innerHTML = '';

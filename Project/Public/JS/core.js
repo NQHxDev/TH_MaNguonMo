@@ -1,6 +1,5 @@
 const state = {
    user: null,
-   token: localStorage.getItem('token') || null,
    guestId: getOrCreateGuestId(),
    products: window.initialProducts || [],
    categories: window.initialCategories || [],
@@ -32,11 +31,8 @@ async function initApp() {
    setupEventListeners();
    handleUrlParams();
 
-   if (state.token) {
-      await checkAuth();
-   } else {
-      updateNavbar();
-   }
+   // Luôn thử checkAuth — cookie tự gửi, không cần kiểm tra state.token
+   await checkAuth();
 
    window.addEventListener('popstate', () => {
       handleInitialRoute();
@@ -48,11 +44,10 @@ async function initApp() {
 function handleUrlParams() {
    const params = new URLSearchParams(window.location.search);
 
-   if (params.has('token')) {
-      const token = params.get('token');
-      localStorage.setItem('token', token);
-      state.token = token;
-      window.location.href = '/';
+   // OAuth success: cookies đã được server set, chỉ cần checkAuth
+   if (window.location.pathname === '/oauth-success') {
+      // Cookies đã được set bởi server callback, redirect về home
+      window.history.replaceState({}, document.title, '/');
       return;
    }
 
@@ -82,29 +77,36 @@ function handleUrlParams() {
 
 async function checkAuth() {
    try {
-      const res = await fetchApi('/api/auth/me', 'GET', null, true);
+      const res = await fetchApi('/api/auth/me');
       if (res && res.success) {
          state.user = res.user;
       } else {
-         logoutLocal();
+         state.user = null;
       }
    } catch (e) {
-      logoutLocal();
+      state.user = null;
    }
    updateNavbar();
 }
 
-async function fetchApi(endpoint, method = 'GET', body = null, authenticated = false) {
+/**
+ * Fetch API wrapper với auto-refresh token.
+ * 
+ * Browser tự gửi HttpOnly cookies (access_token + refresh_token) mỗi request.
+ * Khi nhận 401 → tự gọi /api/auth/refresh → retry request gốc.
+ * 
+ * KHÔNG cần truyền tham số authenticated — mọi request đều gửi cookie.
+ */
+let isRefreshing = false;
+let refreshPromise = null;
+
+async function fetchApi(endpoint, method = 'GET', body = null) {
    const headers = {
       Accept: 'application/json',
       'X-Guest-Id': state.guestId,
    };
 
-   if (authenticated && state.token) {
-      headers['Authorization'] = `Bearer ${state.token}`;
-   }
-
-   let options = { method, headers };
+   let options = { method, headers, credentials: 'include' };
 
    if (body) {
       if (body instanceof FormData) {
@@ -116,19 +118,54 @@ async function fetchApi(endpoint, method = 'GET', body = null, authenticated = f
    }
 
    try {
-      const response = await fetch(endpoint, options);
-      if (response.status === 401) {
-         showToast('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!', 'error');
-         logoutLocal();
-         navigateTo('login');
-         return null;
+      let response = await fetch(endpoint, options);
+
+      // Nếu 401 → thử refresh token (chỉ 1 lần)
+      if (response.status === 401 && endpoint !== '/api/auth/refresh') {
+         const refreshed = await tryRefreshToken();
+         if (refreshed) {
+            // Retry request gốc — cookie mới đã được browser cập nhật
+            response = await fetch(endpoint, options);
+         } else {
+            // Refresh thất bại → hết phiên
+            if (state.user) {
+               showToast('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!', 'error');
+               logoutLocal();
+               navigateTo('login');
+            }
+            return null;
+         }
       }
+
       return await response.json();
    } catch (error) {
       console.error('API Error: ', error);
       showToast('Có lỗi xảy ra khi kết nối máy chủ!', 'error');
       return null;
    }
+}
+
+/**
+ * Thử refresh token — đảm bảo chỉ 1 request refresh chạy cùng lúc.
+ * @returns {boolean} true nếu refresh thành công
+ */
+async function tryRefreshToken() {
+   if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = fetch('/api/auth/refresh', {
+         method: 'POST',
+         credentials: 'include',
+      })
+         .then((res) => {
+            isRefreshing = false;
+            return res.ok;
+         })
+         .catch(() => {
+            isRefreshing = false;
+            return false;
+         });
+   }
+   return refreshPromise;
 }
 
 function updateNavbar() {
