@@ -7,7 +7,16 @@ require_once 'App/Models/ProductModel.php';
 require_once 'App/Utils/TokenHelper.php';
 require_once 'App/Utils/AuthMiddleware.php';
 
-header("Access-Control-Allow-Origin: *");
+// CORS — origin cụ thể (bắt buộc khi dùng credentials: include cho cookies)
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowedOrigins = [AppConfig::$frontendUrl];
+if (in_array($origin, $allowedOrigins)) {
+   header("Access-Control-Allow-Origin: " . $origin);
+} else {
+   // Same-origin requests (frontend served by same PHP server) không có HTTP_ORIGIN
+   header("Access-Control-Allow-Origin: " . AppConfig::$frontendUrl);
+}
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, DELETE");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-Guest-Id");
@@ -86,6 +95,8 @@ switch ($resource) {
          dispatch('AccountController', 'checkLogin');
       } elseif ($subResource === 'logout' && $method === 'POST') {
          dispatch('AccountController', 'logout');
+      } elseif ($subResource === 'refresh' && $method === 'POST') {
+         dispatch('AccountController', 'refresh');
       } elseif ($subResource === 'me' && $method === 'GET') {
          dispatch('AccountController', 'me');
       } elseif ($subResource === 'google') {

@@ -5,9 +5,21 @@ require_once __DIR__ . '/TokenHelper.php';
 class AuthMiddleware {
 
    /**
-    * Trích xuất thông tin người dùng từ Header Authorization (Bearer Token) hoặc query string.
+    * Trích xuất thông tin người dùng từ Access Token.
+    * 
+    * Thứ tự ưu tiên:
+    * 1. Cookie access_token (HttpOnly — browser tự gửi)
+    * 2. Header Authorization: Bearer <token> (cho API client/Postman)
+    * 
+    * Không hỗ trợ truyền token qua query string (không an toàn).
     */
    public static function getUserFromHeaders(): ?array {
+      // 1. Ưu tiên đọc từ HttpOnly cookie (browser tự gửi)
+      if (isset($_COOKIE['access_token']) && !empty($_COOKIE['access_token'])) {
+         return TokenHelper::verifyAccessToken($_COOKIE['access_token']);
+      }
+
+      // 2. Fallback: đọc từ Authorization header (cho API client như Postman, cURL)
       $authHeader = null;
 
       if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
@@ -24,18 +36,8 @@ class AuthMiddleware {
          }
       }
 
-      // Hỗ trợ truyền qua query string để test hoặc callback tiện lợi
-      if (!$authHeader && isset($_GET['token'])) {
-         $authHeader = 'Bearer ' . $_GET['token'];
-      }
-
       if ($authHeader && preg_match('/Bearer\s(\S+)/i', $authHeader, $matches)) {
-         $token = $matches[1];
-         return TokenHelper::verifyToken($token);
-      }
-
-      if (isset($_COOKIE['token'])) {
-         return TokenHelper::verifyToken($_COOKIE['token']);
+         return TokenHelper::verifyAccessToken($matches[1]);
       }
 
       return null;
