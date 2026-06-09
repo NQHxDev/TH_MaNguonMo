@@ -1,0 +1,21 @@
+<?php
+
+class JWTConfig {
+
+   public static string $secret = 'zeion_store_jwt_secret_key_123456789_!@#';
+    */
+   public static int $accessTokenTTL = 900;
+
+   /**
+    * Thời gian sống của Refresh Token (giây).
+    * Mặc định: 604800 giây = 7 ngày.
+    */
+   public static int $refreshTokenTTL = 604800;
+
+   /**
+    * Bật flag Secure cho cookie (chỉ gửi qua HTTPS).
+    * Đặt true khi deploy với HTTPS, false cho localhost HTTP.
+    */
+   public static bool $secureCookie = false;
+}
+?>
