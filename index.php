@@ -1,6 +1,7 @@
 <?php
 
 require_once 'App/Config/Database.php';
+require_once 'App/Config/AppConfig.php';
 require_once 'App/Utils/SessionHelper.php';
 require_once 'App/Models/CategoryModel.php';
 require_once 'App/Models/ProductModel.php';
